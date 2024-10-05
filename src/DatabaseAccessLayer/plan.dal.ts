@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { DBqueries, DBsp } from "../Shared/dBQueries";
 import DbConnection from "./dbConnection";
-import { PlanReference } from "../Model/CreatePlanRequestModel";
+import { PlanReference } from "../Model/PlanReference";
 import { RowDataPacket } from "mysql2";
 
 interface PlanD extends RowDataPacket {
@@ -36,7 +36,9 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
 
   async GetPlanDetails(planId: string) {
     try {
-      return this.ReadDB<Array<PlanD>>(DBsp.GetPlanDetails, [planId]);
+      return this.ReadDB<[PlanD[], PlanReferenceD[]]>(DBsp.GetPlanDetails, [
+        planId,
+      ]);
     } catch (error) {
       throw error;
     }
@@ -44,7 +46,9 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
 
   async GetPlanList(userId: string) {
     try {
-      return this.ReadDB<any[]>(DBsp.GetPlanList, [userId]);
+      return this.ReadDB<[PlanD[], PlanReferenceD[]]>(DBsp.GetPlanList, [
+        userId,
+      ]);
     } catch (error) {
       throw error;
     }

@@ -8,5 +8,12 @@ BEGIN
         tbl_Plan
     WHERE 
         User_Id = userId;
+
+    SELECT 
+        *
+    FROM 
+        tbl_Plan_Reference
+    WHERE
+        Created_By = userId;
 END &&
 DELIMITER ;

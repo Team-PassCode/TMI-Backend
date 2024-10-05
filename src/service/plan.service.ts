@@ -2,14 +2,11 @@ import { Service } from "typedi";
 import PlanDA from "../DatabaseAccessLayer/plan.dal";
 import { Request, Response } from "express";
 import { GenerateUUID } from "../lib/commonFunctions";
-import { ErrorMessage, SuccessMessage } from "../Shared/messages";
-import * as dotenv from "dotenv";
-import {
-  CreatePlanRequestModel,
-  PlanReference,
-} from "../Model/CreatePlanRequestModel";
+import { SuccessMessage } from "../Shared/messages";
+import { CreatePlanRequestModel } from "../Model/CreatePlanRequestModel";
 import { UpdatePlanRequestModel } from "../Model/UpdatePlanRequestModel";
-dotenv.config();
+import { GetPlan } from "../Model/GetPlanModel";
+import { PlanReference } from "../Model/PlanReference";
 
 @Service()
 export default class PlanService {
@@ -26,8 +23,6 @@ export default class PlanService {
       if (Array.isArray(plans) && plans.length > 0)
         plans[0]["PlanReferences"] = planReferences;
 
-      console.log(plans);
-
       res.status(200).send({
         plans,
       });
@@ -37,12 +32,51 @@ export default class PlanService {
     }
   };
 
-  GetPatientList = async (req: Request, res: Response) => {
+  GetPlanList = async (req: Request, res: Response) => {
     try {
       const { userid } = req;
-      const [patient_list] = await this.planDA.GetPlanList(userid ?? "");
+      const [plans, planReferences] = await this.planDA.GetPlanList(
+        userid ?? ""
+      );
 
-      res.status(200).send(patient_list);
+      if (Array.isArray(plans) && plans.length > 0) {
+        const plansWithPlanReferences = plans.map<GetPlan>(
+          ({
+            Plan_Id,
+            Title,
+            Description,
+            Start_Time,
+            End_Time,
+            Created_On,
+            Created_By,
+          }) => {
+            const planReferencesOfThisPlan =
+              planReferences?.filter((pr: any) => pr.Plan_Id === Plan_Id) ?? [];
+
+            return {
+              planId: Plan_Id,
+              title: Title,
+              description: Description,
+              startTime: new Date(Start_Time).getTime(),
+              endTime: new Date(End_Time).getTime(),
+              createdOn: new Date(Created_On).getTime(),
+              createdBy: Created_By,
+              planReferences: planReferencesOfThisPlan.map<PlanReference>(
+                ({ HyperLink, Description, Plan_Reference_Id }) => {
+                  return {
+                    hyperLink: HyperLink,
+                    description: Description,
+                    planReferenceId: Plan_Reference_Id,
+                  };
+                }
+              ),
+            };
+          }
+        );
+        res.status(200).send(plansWithPlanReferences);
+      } else {
+        res.status(200).send([]);
+      }
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
