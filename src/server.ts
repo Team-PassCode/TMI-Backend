@@ -4,14 +4,7 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import config from "./Shared/config";
 import Container from "typedi";
-import {
-  MemberRouter,
-  LookupRouter,
-  UserRouter,
-  ClientRouter,
-} from "./api/index";
-import fileUpload from "express-fileupload";
-import SchedulerRouter from "./api/scheduler.routes";
+import { PlanRouter } from "./api/index";
 
 class App {
   private app: Express;
@@ -29,17 +22,12 @@ class App {
     this.app.use(cors(config.corsOptions));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(fileUpload());
     dotenv.config();
   }
 
   setRoutes() {
     this.app.use("/", this.router);
-    Container.get(UserRouter).SetRouter(this.router);
-    Container.get(LookupRouter).SetRouter(this.router);
-    Container.get(MemberRouter).SetRouter(this.router);
-    Container.get(ClientRouter).SetRouter(this.router);
-    Container.get(SchedulerRouter).SetRouter(this.router);
+    Container.get(PlanRouter).SetRouter(this.router);
   }
 
   startApp() {

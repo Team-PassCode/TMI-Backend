@@ -1,11 +1,10 @@
-CREATE TABLE tbl_Plan
+CREATE TABLE tbl_Plan_Break
 (
 	Plan_Id         VARCHAR(40)     NOT NULL PRIMARY KEY,
-    User_Id         VARCHAR(40)     NOT NULL,
-    Title           LONGTEXT        NOT NULL,
-    Description     LONGTEXT        NOT NULL,
     Start_Time      DATETIME        NOT NULL,
     End_Time        DATETIME        NOT NULL,
+    Breaks          Int             NULL,
+    BreakDuration   Int             NULL,
     Created_On      DATETIME        DEFAULT CURRENT_TIMESTAMP,
     Updated_On      DATETIME        NULL,
     Created_By      VARCHAR(40)     NOT NULL,

@@ -1,11 +1,3 @@
-import MemberRouter from './member.routes';
-import UserRouter from './lookup.routes';
-import LookupRouter from './user.routes';
-import ClientRouter from './client.routes';
+import PlanRouter from "./plan.routes";
 
-export {
-    UserRouter,
-    LookupRouter,
-    MemberRouter,
-    ClientRouter
-}
+export { PlanRouter };
