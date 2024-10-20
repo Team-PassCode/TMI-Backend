@@ -20,7 +20,9 @@ export default class NoteService {
       const noteId = GenerateUUID();
 
       await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
-      response.status(200).send();
+      response.status(200).send({
+        noteId,
+      });
     } catch (error) {
       console.error(error);
       response.status(500).send(error);
