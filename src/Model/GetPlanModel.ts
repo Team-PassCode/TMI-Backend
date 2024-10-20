@@ -1,5 +1,5 @@
+import { Note } from "./Note";
 import { PlanReference } from "./PlanReference";
-import { UpdatePlanRequestModel } from "./UpdatePlanRequestModel";
 
 export interface GetPlan {
   planId: string;
@@ -8,4 +8,5 @@ export interface GetPlan {
   startTime: number;
   endTime: number;
   planReferences: PlanReference[];
+  notes: Note[];
 }

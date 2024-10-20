@@ -14,5 +14,6 @@ export default class PlanRouter {
     router.get("/plan", this.planService.GetPlanList);
     router.post("/plan", ValidateCreatePlan, this.planService.CreatePlan);
     router.put("/plan", ValidateUpdatePlan, this.planService.UpdatePlan);
+    router.delete("/plan/:planid", this.planService.DeletePlan);
   }
 }

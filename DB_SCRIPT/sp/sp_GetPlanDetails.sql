@@ -17,5 +17,20 @@ BEGIN
         tbl_Plan_Reference
     WHERE
         Plan_Id = planId;
+
+    SELECT 
+        *
+    FROM 
+        tbl_Plan_Break
+    WHERE
+        Plan_Id = planId;
+    
+
+    SELECT 
+        *
+    FROM
+        tbl_Note
+    WHERE
+        Plan_Id = planId;
 END &&
 DELIMITER ;

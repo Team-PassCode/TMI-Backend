@@ -3,25 +3,47 @@ import { DBqueries, DBsp } from "../Shared/dBQueries";
 import DbConnection from "./dbConnection";
 import { PlanReference } from "../Model/PlanReference";
 import { RowDataPacket } from "mysql2";
+import { Break } from "../Model/Break";
 
-interface PlanD extends RowDataPacket {
+export interface PlanD extends RowDataPacket {
   Plan_Id: string;
   User_Id: string;
   Title: string;
   Description: string;
-  Start_Time: Date;
-  End_Time: Date;
+  Scheduled_On: Date;
+  Start_Time: number;
+  End_Time: number;
   Created_On: Date;
   Updated_On: Date;
   Created_By: string;
   Updated_By: string;
 }
 
-interface PlanReferenceD extends RowDataPacket {
+export interface PlanReferenceD extends RowDataPacket {
   Plan_Reference_Id: string;
   Plan_Id: string;
   HyperLink: string;
   Description: string;
+  Created_On: Date;
+  Updated_On: Date;
+  Created_By: string;
+  Updated_By: string;
+}
+
+export interface PlanBreakD extends RowDataPacket {
+  Plan_Id: string;
+  Start_Time: number;
+  End_Time: number;
+  Created_On: Date;
+  Updated_On: Date;
+  Created_By: string;
+  Updated_By: string;
+}
+
+export interface NoteD extends RowDataPacket {
+  Plan_Id: string;
+  Note_Id: string;
+  Notes: string;
   Created_On: Date;
   Updated_On: Date;
   Created_By: string;
@@ -36,9 +58,10 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
 
   async GetPlanDetails(planId: string) {
     try {
-      return this.ReadDB<[PlanD[], PlanReferenceD[]]>(DBsp.GetPlanDetails, [
-        planId,
-      ]);
+      return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
+        DBsp.GetPlanDetails,
+        [planId]
+      );
     } catch (error) {
       throw error;
     }
@@ -46,9 +69,10 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
 
   async GetPlanList(userId: string) {
     try {
-      return this.ReadDB<[PlanD[], PlanReferenceD[]]>(DBsp.GetPlanList, [
-        userId,
-      ]);
+      return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
+        DBsp.GetPlanList,
+        [userId]
+      );
     } catch (error) {
       throw error;
     }
@@ -59,12 +83,11 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     userId: string,
     title: string,
     description: string,
-    startTime: Date,
-    endTime: Date,
-    planReference: PlanReference[],
+    startTime: number,
+    endTime: number,
     createdBy: string,
-    breaks?: number[],
-    breakDuration?: number
+    planReference: PlanReference[],
+    breaks: Break[]
   ) {
     try {
       let queryList = [];
@@ -79,18 +102,20 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
         endTime,
         createdBy,
       ]);
-      if (planReference.length > 0) {
-        planReference.forEach(({ planReferenceId, hyperLink, description }) => {
-          queryList.push(DBqueries.CreatePlanReference);
-          paramsList.push([
-            planReferenceId,
-            planId,
-            hyperLink,
-            description,
-            createdBy,
-          ]);
-        });
-      }
+      breaks.forEach(({ startTime, endTime }) => {
+        queryList.push(DBqueries.CreatePlanBreak);
+        paramsList.push([planId, startTime, endTime, createdBy]);
+      });
+      planReference.forEach(({ planReferenceId, hyperLink, description }) => {
+        queryList.push(DBqueries.CreatePlanReference);
+        paramsList.push([
+          planReferenceId,
+          planId,
+          hyperLink,
+          description,
+          createdBy,
+        ]);
+      });
 
       await this.InsertOrUpdateDB(queryList, paramsList);
     } catch (error) {
@@ -102,12 +127,11 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     planId: string,
     title: string,
     description: string,
-    startTime: Date,
-    endTime: Date,
-    planReference: PlanReference[],
+    startTime: number,
+    endTime: number,
     updatedBy: string,
-    breaks?: number[],
-    breakDuration?: number
+    planReference: PlanReference[],
+    breaks: Break[]
   ) {
     try {
       let queryList = [];
@@ -123,25 +147,38 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
         planId,
       ]);
 
-      queryList.push(DBqueries.DeleteAllTableReferences);
+      queryList.push(DBqueries.DeleteAllPlanBreaks);
       paramsList.push([planId]);
+      breaks.forEach(({ startTime, endTime }) => {
+        queryList.push(DBqueries.CreatePlanBreak);
+        paramsList.push([planId, startTime, endTime, updatedBy]);
+      });
 
-      if (planReference.length > 0) {
-        planReference.forEach(({ planReferenceId, hyperLink, description }) => {
-          queryList.push(DBqueries.CreatePlanReference);
-          paramsList.push([
-            planReferenceId,
-            planId,
-            hyperLink,
-            description,
-            updatedBy,
-          ]);
-        });
-      }
+      queryList.push(DBqueries.DeleteAllPlanReferences);
+      paramsList.push([planId]);
+      planReference.forEach(({ planReferenceId, hyperLink, description }) => {
+        queryList.push(DBqueries.CreatePlanReference);
+        paramsList.push([
+          planReferenceId,
+          planId,
+          hyperLink,
+          description,
+          updatedBy,
+        ]);
+      });
 
       await this.InsertOrUpdateDB(queryList, paramsList);
     } catch (error) {
       throw error;
     }
+  }
+
+  async DeletePlan(planId: string) {
+    let queryList = [];
+    let paramsList = [];
+
+    queryList.push(DBsp.DeletePlan);
+    paramsList.push([planId]);
+    await this.InsertOrUpdateDB(queryList, paramsList);
   }
 }

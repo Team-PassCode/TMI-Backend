@@ -1,8 +1,8 @@
-CREATE TABLE tbl_Plan_Break
+CREATE TABLE tbl_Note
 (
-	Plan_Id         VARCHAR(40)     NOT NULL,
-    Start_Time      BIGINT             NOT NULL,
-    End_Time        BIGINT             NOT NULL,
+	Note_Id         VARCHAR(40)     NOT NULL PRIMARY KEY,
+    Plan_Id         VARCHAR(40)     NOT NULL,
+    Notes           TEXT            NOT NULL,
     Created_On      DATETIME        DEFAULT CURRENT_TIMESTAMP,
     Updated_On      DATETIME        NULL,
     Created_By      VARCHAR(40)     NOT NULL,

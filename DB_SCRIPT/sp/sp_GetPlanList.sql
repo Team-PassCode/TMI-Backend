@@ -15,5 +15,20 @@ BEGIN
         tbl_Plan_Reference
     WHERE
         Created_By = userId;
+    
+    SELECT 
+        *
+    FROM 
+        tbl_Plan_Break
+    WHERE
+        Created_By = userId;
+    
+
+    SELECT 
+        *
+    FROM
+        tbl_Note
+    WHERE
+        Created_By = userId;
 END &&
 DELIMITER ;

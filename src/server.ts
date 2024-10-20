@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import config from "./Shared/config";
 import Container from "typedi";
 import { PlanRouter } from "./api/index";
+import NoteRouter from "./api/note.routes";
 
 class App {
   private app: Express;
@@ -28,10 +29,11 @@ class App {
   setRoutes() {
     this.app.use("/", this.router);
     Container.get(PlanRouter).SetRouter(this.router);
+    Container.get(NoteRouter).SetRouter(this.router);
   }
 
   startApp() {
-    const port = process.env.APP_PORT || 3000;
+    const port = process.env.APP_PORT || 3001;
     this.app.listen(port, () => {
       console.log(`Project running on ${port}`);
     });

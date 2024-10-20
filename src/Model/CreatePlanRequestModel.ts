@@ -1,4 +1,6 @@
+import { BreakRequestModel } from "./BreakRequestModel";
 import { PlanReference } from "./PlanReference";
+import { Time } from "./TimeRequestModel";
 
 export interface CreatePlanRequestModel {
   title: string;
@@ -6,6 +8,5 @@ export interface CreatePlanRequestModel {
   startTime: number;
   endTime: number;
   planReferences: PlanReference[];
-  breaks: number[];
-  breakDuration: string;
+  breaks: BreakRequestModel[];
 }

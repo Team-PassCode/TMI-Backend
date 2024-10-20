@@ -9,24 +9,27 @@ const VerifyEndTime = (value: number, helpers: any) => {
   return value;
 };
 
+const TimeSchema = Joi.number().required().label("Scheduled On");
+
 const CreatePlanSchema: ObjectSchema = Joi.object({
   title: Joi.string().required().label("Plan Title"),
   description: Joi.string().label("Plan Description").optional().allow(""),
-  startTime: Joi.number().required().label("Meeting Start Time").messages({
-    "any.formaterror": "Wrong Time format",
-  }),
-  endTime: Joi.number()
-    .required()
-    .custom(VerifyEndTime)
-    .label("Meeting End Time")
-    .messages({
-      "any.formaterror": "Wrong Time format",
-    }),
+  // date: Joi.number().required().label("Scheduled On"),
+  startTime: TimeSchema,
+  endTime: TimeSchema.custom(VerifyEndTime),
   planReferences: Joi.array()
     .items(
       Joi.object({
         hyperLink: Joi.string().uri().label("Hyper Link").optional().allow(""),
         description: Joi.string().label("Description").optional().allow(""),
+      })
+    )
+    .optional(),
+  breaks: Joi.array()
+    .items(
+      Joi.object({
+        startTime: TimeSchema,
+        endTime: TimeSchema.custom(VerifyEndTime),
       })
     )
     .optional(),

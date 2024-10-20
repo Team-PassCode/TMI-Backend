@@ -1,12 +1,18 @@
 import { Service } from "typedi";
-import PlanDA from "../DatabaseAccessLayer/plan.dal";
+import PlanDA, {
+  NoteD,
+  PlanBreakD,
+  PlanD,
+  PlanReferenceD,
+} from "../DatabaseAccessLayer/plan.dal";
 import { Request, Response } from "express";
 import { GenerateUUID } from "../lib/commonFunctions";
-import { SuccessMessage } from "../Shared/messages";
 import { CreatePlanRequestModel } from "../Model/CreatePlanRequestModel";
 import { UpdatePlanRequestModel } from "../Model/UpdatePlanRequestModel";
 import { GetPlan } from "../Model/GetPlanModel";
 import { PlanReference } from "../Model/PlanReference";
+import { Break } from "../Model/Break";
+import { Note } from "../Model/Note";
 
 @Service()
 export default class PlanService {
@@ -35,11 +41,29 @@ export default class PlanService {
   GetPlanList = async (req: Request, res: Response) => {
     try {
       const { userid } = req;
-      const [plans, planReferences] = await this.planDA.GetPlanList(
-        userid ?? ""
+      const [plans, planReferences, planBreaks, notes] =
+        await this.planDA.GetPlanList(userid ?? "");
+      const plansWithPlanReferences = this.GetPlan(
+        plans,
+        planReferences,
+        planBreaks,
+        notes
       );
+      res.status(200).send(plansWithPlanReferences);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  };
 
-      if (Array.isArray(plans) && plans.length > 0) {
+  GetPlan = (
+    plans: PlanD[],
+    planReferences: PlanReferenceD[],
+    planBreaks: PlanBreakD[],
+    notes: NoteD[]
+  ) => {
+    if (Array.isArray(plans)) {
+      if (Array.isArray(plans)) {
         const plansWithPlanReferences = plans.map<GetPlan>(
           ({
             Plan_Id,
@@ -52,6 +76,8 @@ export default class PlanService {
           }) => {
             const planReferencesOfThisPlan =
               planReferences?.filter((pr: any) => pr.Plan_Id === Plan_Id) ?? [];
+            const planBreaksOfThisPlan =
+              planBreaks?.filter((pb) => pb.Plan_Id === Plan_Id) ?? [];
 
             return {
               planId: Plan_Id,
@@ -70,16 +96,27 @@ export default class PlanService {
                   };
                 }
               ),
+              breaks: planBreaksOfThisPlan.map<Break>(
+                ({ Start_Time, End_Time }) => {
+                  return {
+                    startTime: Start_Time,
+                    endTime: End_Time,
+                  };
+                }
+              ),
+              notes: notes.map<Note>(({ Note_Id, Notes, Created_On }) => {
+                return {
+                  note: Notes,
+                  noteId: Note_Id,
+                  createdOn: Created_On.getTime(),
+                };
+              }),
             };
           }
         );
-        res.status(200).send(plansWithPlanReferences);
-      } else {
-        res.status(200).send([]);
+        return plansWithPlanReferences;
       }
-    } catch (error) {
-      console.log(error);
-      res.status(500).send(error);
+      return [];
     }
   };
 
@@ -88,36 +125,38 @@ export default class PlanService {
     response: Response
   ) => {
     try {
-      let { title, description, startTime, endTime, planReferences } =
-        request.body;
+      let { title, description } = request.body;
 
       const { userid } = request;
       const planId = GenerateUUID();
-      let planReferencesToBeSaved: PlanReference[] = [];
 
-      if (Array.isArray(planReferences) && planReferences.length > 0) {
-        planReferencesToBeSaved = planReferences.map<PlanReference>((p) => {
-          return {
-            hyperLink: p.hyperLink,
-            description: p.description,
-            planReferenceId: GenerateUUID(),
-          };
-        });
-      }
+      const {
+        planBreaksToBeSaved,
+        planEndTime,
+        planReferencesToBeSaved,
+        planStartTime,
+      } = this.PrepareCreateAndUpdateData(request.body);
 
       await this.planDA.CreatePlan(
         planId,
         userid ?? "",
         title,
         description,
-        new Date(startTime),
-        new Date(endTime),
+        planStartTime,
+        planEndTime,
+        userid ?? "",
         planReferencesToBeSaved,
-        userid ?? ""
+        planBreaksToBeSaved
       );
-      response.status(200).send({
-        status: SuccessMessage.Success,
-      });
+      const [plans, planReferences, planBreaks, notes] =
+        await this.planDA.GetPlanDetails(planId);
+      const plansWithPlanReferences = this.GetPlan(
+        plans,
+        planReferences,
+        planBreaks,
+        notes
+      );
+      response.status(200).send(plansWithPlanReferences);
     } catch (error) {
       console.log(error);
       response.status(500).send(error);
@@ -129,36 +168,85 @@ export default class PlanService {
     response: Response
   ) => {
     try {
-      let { title, description, startTime, endTime, planReferences, planId } =
-        request.body;
+      let { title, description, planId } = request.body;
 
       const { userid } = request;
-      let planReferencesToBeSaved: PlanReference[] = [];
 
-      if (Array.isArray(planReferences) && planReferences.length > 0) {
-        planReferencesToBeSaved = planReferences.map<PlanReference>((p) => {
-          return {
-            hyperLink: p.hyperLink,
-            description: p.description,
-            planReferenceId: GenerateUUID(),
-          };
-        });
-      }
+      const {
+        planBreaksToBeSaved,
+        planEndTime,
+        planReferencesToBeSaved,
+        planStartTime,
+      } = this.PrepareCreateAndUpdateData(request.body);
 
       await this.planDA.UpdatePlan(
         planId,
         title,
         description,
-        new Date(startTime),
-        new Date(endTime),
+        planStartTime,
+        planEndTime,
+        userid ?? "",
         planReferencesToBeSaved,
-        userid ?? ""
+        planBreaksToBeSaved
+      );
+      const [plans, planReferences, planBreaks, notes] =
+        await this.planDA.GetPlanDetails(planId);
+      const plansWithPlanReferences = this.GetPlan(
+        plans,
+        planReferences,
+        planBreaks,
+        notes
       );
       response.status(200).send({
-        status: SuccessMessage.Success,
+        plansWithPlanReferences,
       });
     } catch (error) {
       console.log(error);
+      response.status(500).send(error);
+    }
+  };
+
+  PrepareCreateAndUpdateData(
+    body: CreatePlanRequestModel | UpdatePlanRequestModel
+  ) {
+    let { startTime, endTime, planReferences, breaks } = body;
+
+    let planReferencesToBeSaved: PlanReference[] = [];
+    let planBreaksToBeSaved: Break[] = [];
+
+    if (Array.isArray(planReferences)) {
+      planReferencesToBeSaved = planReferences.map<PlanReference>((p) => {
+        return {
+          hyperLink: p.hyperLink,
+          description: p.description,
+          planReferenceId: GenerateUUID(),
+        };
+      });
+    }
+    if (Array.isArray(breaks)) {
+      planBreaksToBeSaved = breaks.map<Break>(({ startTime, endTime }) => {
+        return {
+          startTime: startTime,
+          endTime: endTime,
+        };
+      });
+    }
+
+    return {
+      planStartTime: startTime,
+      planEndTime: endTime,
+      planReferencesToBeSaved,
+      planBreaksToBeSaved,
+    };
+  }
+
+  DeletePlan = async (request: Request, response: Response) => {
+    try {
+      const { planid } = request.params;
+      await this.planDA.DeletePlan(planid);
+      response.status(200).send();
+    } catch (error) {
+      console.error(error);
       response.status(500).send(error);
     }
   };
