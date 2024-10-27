@@ -20,7 +20,7 @@ const CreatePlanSchema: ObjectSchema = Joi.object({
   planReferences: Joi.array()
     .items(
       Joi.object({
-        hyperLink: Joi.string().uri().label("Hyper Link").optional().allow(""),
+        hyperLink: Joi.string().label("Hyper Link").optional().allow(""),
         description: Joi.string().label("Description").optional().allow(""),
       })
     )
