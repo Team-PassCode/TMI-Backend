@@ -75,9 +75,11 @@ export default class PlanService {
             Created_By,
           }) => {
             const planReferencesOfThisPlan =
-              planReferences?.filter((pr: any) => pr.Plan_Id === Plan_Id) ?? [];
+              planReferences?.filter((pr) => pr.Plan_Id === Plan_Id) ?? [];
             const planBreaksOfThisPlan =
               planBreaks?.filter((pb) => pb.Plan_Id === Plan_Id) ?? [];
+            const notesOfThisPlan =
+              notes?.filter((note) => note.Plan_Id === Plan_Id) ?? [];
 
             return {
               planId: Plan_Id,
@@ -104,13 +106,15 @@ export default class PlanService {
                   };
                 }
               ),
-              notes: notes.map<Note>(({ Note_Id, Notes, Created_On }) => {
-                return {
-                  note: Notes,
-                  noteId: Note_Id,
-                  createdOn: Created_On.getTime(),
-                };
-              }),
+              notes: notesOfThisPlan.map<Note>(
+                ({ Note_Id, Notes, Created_On }) => {
+                  return {
+                    note: Notes,
+                    noteId: Note_Id,
+                    createdOn: Created_On.getTime(),
+                  };
+                }
+              ),
             };
           }
         );
