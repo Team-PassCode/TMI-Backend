@@ -11,8 +11,8 @@ export interface PlanD extends RowDataPacket {
   Title: string;
   Description: string;
   Scheduled_On: Date;
-  Start_Time: number;
-  End_Time: number;
+  Start_Time: Date;
+  End_Time: Date;
   Created_On: Date;
   Updated_On: Date;
   Created_By: string;
@@ -32,8 +32,8 @@ export interface PlanReferenceD extends RowDataPacket {
 
 export interface PlanBreakD extends RowDataPacket {
   Plan_Id: string;
-  Start_Time: number;
-  End_Time: number;
+  Start_Time: Date;
+  End_Time: Date;
   Created_On: Date;
   Updated_On: Date;
   Created_By: string;
@@ -67,6 +67,17 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     }
   }
 
+  async GetPlansOfSpecifiedDate(date: Date, userId: string) {
+    try {
+      return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
+        DBsp.GetPlansOfADate,
+        [date, userId]
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async GetPlanList(userId: string) {
     try {
       return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
@@ -83,8 +94,8 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     userId: string,
     title: string,
     description: string,
-    startTime: number,
-    endTime: number,
+    startTime: Date,
+    endTime: Date,
     createdBy: string,
     planReference: PlanReference[],
     breaks: Break[]
@@ -127,8 +138,8 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     planId: string,
     title: string,
     description: string,
-    startTime: number,
-    endTime: number,
+    startTime: Date,
+    endTime: Date,
     updatedBy: string,
     planReference: PlanReference[],
     breaks: Break[]

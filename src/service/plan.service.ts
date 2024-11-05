@@ -13,6 +13,7 @@ import { GetPlan } from "../Model/GetPlanModel";
 import { PlanReference } from "../Model/PlanReference";
 import { Break } from "../Model/Break";
 import { Note } from "../Model/Note";
+import { BreakResponseModel } from "../Model/BreakResponseModel";
 
 @Service()
 export default class PlanService {
@@ -32,6 +33,30 @@ export default class PlanService {
       res.status(200).send({
         plans,
       });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(error);
+    }
+  };
+
+  GetPlansOfSpecifiedDate = async (req: Request, res: Response) => {
+    try {
+      const {
+        params: { date },
+        userid,
+      } = req;
+      const [plans, planReferences, planBreaks, notes] =
+        await this.planDA.GetPlansOfSpecifiedDate(
+          new Date(parseInt(date)),
+          userid ?? ""
+        );
+      const plansWithPlanReferences = this.GetPlan(
+        plans,
+        planReferences,
+        planBreaks,
+        notes
+      );
+      res.status(200).send(plansWithPlanReferences);
     } catch (error) {
       console.log(error);
       res.status(500).send(error);
@@ -98,11 +123,11 @@ export default class PlanService {
                   };
                 }
               ),
-              breaks: planBreaksOfThisPlan.map<Break>(
+              breaks: planBreaksOfThisPlan.map<BreakResponseModel>(
                 ({ Start_Time, End_Time }) => {
                   return {
-                    startTime: Start_Time,
-                    endTime: End_Time,
+                    startTime: Start_Time.getTime(),
+                    endTime: End_Time.getTime(),
                   };
                 }
               ),
@@ -230,15 +255,15 @@ export default class PlanService {
     if (Array.isArray(breaks)) {
       planBreaksToBeSaved = breaks.map<Break>(({ startTime, endTime }) => {
         return {
-          startTime: startTime,
-          endTime: endTime,
+          startTime: new Date(startTime),
+          endTime: new Date(endTime),
         };
       });
     }
 
     return {
-      planStartTime: startTime,
-      planEndTime: endTime,
+      planStartTime: new Date(startTime),
+      planEndTime: new Date(endTime),
       planReferencesToBeSaved,
       planBreaksToBeSaved,
     };

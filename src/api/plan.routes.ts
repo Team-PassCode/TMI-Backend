@@ -11,6 +11,7 @@ export default class PlanRouter {
 
   SetRouter(router: Router) {
     router.get("/plan/:planid", this.planService.GetPlanDetails);
+    router.get("/plan/date/:date", this.planService.GetPlansOfSpecifiedDate);
     router.get("/plan", this.planService.GetPlanList);
     router.post("/plan", ValidateCreatePlan, this.planService.CreatePlan);
     router.put("/plan", ValidateUpdatePlan, this.planService.UpdatePlan);

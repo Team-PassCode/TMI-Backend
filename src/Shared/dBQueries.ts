@@ -20,6 +20,7 @@ export const DBqueries = {
 
 export const DBsp = {
   GetPlanDetails: "call sp_GetPlanDetails(?)",
+  GetPlansOfADate: "call sp_GetPlansOfADate(?,?)",
   GetPlanList: "call sp_GetPlanList(?)",
   DeletePlan: "call sp_DeletePlan(?)",
 };

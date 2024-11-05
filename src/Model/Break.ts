@@ -1,4 +1,4 @@
 export interface Break {
-  startTime: number;
-  endTime: number;
+  startTime: Date;
+  endTime: Date;
 }
