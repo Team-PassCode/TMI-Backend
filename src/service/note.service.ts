@@ -16,6 +16,11 @@ export default class NoteService {
     try {
       let { notes, planId } = request.body;
       const { userid } = request;
+      
+        const planExists = await this.noteDA.FindById(planId);
+        if (!planExists || planExists.length<=0) {
+          response.status(400).send({ error: "PlanId does not exists." });
+        }
 
       const noteId = GenerateUUID();
 

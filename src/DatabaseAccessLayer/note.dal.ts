@@ -8,6 +8,15 @@ export default class NoteDatabaseAccessLayer extends DbConnection {
     super();
   }
 
+  async FindById(planId:string){
+    try{
+      const result=await this.InsertOrUpdateDB([DBqueries.FindById],[[planId]]);
+      return result;
+    }catch(error){
+      throw error;
+    }
+  }
+
   async SaveNotes(
     notesId: string,
     planId: string,
