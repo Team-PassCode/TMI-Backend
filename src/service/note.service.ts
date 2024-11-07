@@ -21,13 +21,12 @@ export default class NoteService {
     let { notes, planId } = request.body;
     const { userid } = request;
     try {
-
       const noteId = GenerateUUID();
 
       await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
       this.logger.info("success", {
-        error_message:"success",
-        method_name:request.method,
+        error_message: "success",
+        method_name: request.method,
         route: request.route.path,
         requestBody: request.body,
         userid,
@@ -38,7 +37,7 @@ export default class NoteService {
     } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        methodName:request.method,
+        methodName: request.method,
         route: request.route.path,
         input_params: request.body,
         created_by: userid,

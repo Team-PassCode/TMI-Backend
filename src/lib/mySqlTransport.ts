@@ -118,8 +118,6 @@
  
    log(info: any, callback: Function) {
      // get log content
-     console.log(info);
-     
      const {
        method_name,
        route,
