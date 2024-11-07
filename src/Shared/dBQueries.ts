@@ -16,6 +16,8 @@ export const DBqueries = {
   UpdateNotes:
     "Update tbl_Note SET Notes = ?, Updated_On = CURRENT_TIMESTAMP, Updated_By = ? WHERE Note_Id = ?",
   DeleteNote: "Delete From tbl_Note Where Note_Id = ?",
+  LogError: "INSERT INTO tbl_logs (method_name, route, input_params, error_message, stack_trace, outgoing, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)",
+
 };
 
 export const DBsp = {

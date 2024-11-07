@@ -14,17 +14,21 @@ import { PlanReference } from "../Model/PlanReference";
 import { Break } from "../Model/Break";
 import { Note } from "../Model/Note";
 import { BreakResponseModel } from "../Model/BreakResponseModel";
+import LoggerService from "./logger.service";
 
 @Service()
 export default class PlanService {
-  constructor(private readonly planDA: PlanDA) {}
+  constructor(
+    private readonly planDA: PlanDA,
+    private readonly logger: LoggerService
+  ) {}
 
   GetPlanDetails = async (req: Request, res: Response) => {
+    const {
+      params: { planid },
+      userid,
+    } = req;
     try {
-      const {
-        params: { planid },
-        userid,
-      } = req;
 
       const [plans, planReferences] = await this.planDA.GetPlanDetails(planid);
       if (Array.isArray(plans) && plans.length > 0)
@@ -33,18 +37,23 @@ export default class PlanService {
       res.status(200).send({
         plans,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error:any) {
+      this.logger.error(error, {
+        ...error,
+        route: req.route,
+        input_params: req.body,
+        created_by: userid,
+      });
       res.status(500).send(error);
     }
   };
 
   GetPlansOfSpecifiedDate = async (req: Request, res: Response) => {
+    const {
+      params: { date },
+      userid,
+    } = req;
     try {
-      const {
-        params: { date },
-        userid,
-      } = req;
       const [plans, planReferences, planBreaks, notes] =
         await this.planDA.GetPlansOfSpecifiedDate(
           new Date(parseInt(date)),
@@ -57,15 +66,20 @@ export default class PlanService {
         notes
       );
       res.status(200).send(plansWithPlanReferences);
-    } catch (error) {
-      console.log(error);
+    } catch (error:any) {
+      this.logger.error(error, {
+        ...error,
+        route: req.route,
+        input_params: req.body,
+        created_by: userid,
+      });
       res.status(500).send(error);
     }
   };
 
   GetPlanList = async (req: Request, res: Response) => {
+    const { userid } = req;
     try {
-      const { userid } = req;
       const [plans, planReferences, planBreaks, notes] =
         await this.planDA.GetPlanList(userid ?? "");
       const plansWithPlanReferences = this.GetPlan(
@@ -75,8 +89,13 @@ export default class PlanService {
         notes
       );
       res.status(200).send(plansWithPlanReferences);
-    } catch (error) {
-      console.log(error);
+    } catch (error:any) {
+      this.logger.error(error, {
+        ...error,
+        route: req.route,
+        input_params: req.body,
+        created_by: userid,
+      });
       res.status(500).send(error);
     }
   };
@@ -153,10 +172,10 @@ export default class PlanService {
     request: Request<{}, {}, CreatePlanRequestModel>,
     response: Response
   ) => {
+    const { userid } = request;
     try {
       let { title, description } = request.body;
 
-      const { userid } = request;
       const planId = GenerateUUID();
 
       const {
@@ -186,8 +205,13 @@ export default class PlanService {
         notes
       );
       response.status(200).send(plansWithPlanReferences);
-    } catch (error) {
-      console.log(error);
+    } catch (error:any) {
+      this.logger.error(error, {
+        ...error,
+        route: request.route,
+        input_params: request.body,
+        created_by: userid,
+      });
       response.status(500).send(error);
     }
   };
@@ -196,10 +220,10 @@ export default class PlanService {
     request: Request<{}, {}, UpdatePlanRequestModel>,
     response: Response
   ) => {
+    const { userid } = request;
     try {
       let { title, description, planId } = request.body;
 
-      const { userid } = request;
 
       const {
         planBreaksToBeSaved,
@@ -229,8 +253,13 @@ export default class PlanService {
       response.status(200).send({
         plansWithPlanReferences,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error:any) {
+      this.logger.error(error, {
+        ...error,
+        route: request.route,
+        input_params: request.body,
+        created_by: userid,
+      });
       response.status(500).send(error);
     }
   };
@@ -274,8 +303,13 @@ export default class PlanService {
       const { planid } = request.params;
       await this.planDA.DeletePlan(planid);
       response.status(200).send();
-    } catch (error) {
-      console.error(error);
+    } catch (error:any) {
+      this.logger.error(error, {
+        ...error,
+        route: request.route,
+        input_params: request.body,
+        // created_by: userid,
+      });
       response.status(500).send(error);
     }
   };
