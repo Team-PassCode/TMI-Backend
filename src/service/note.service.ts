@@ -2,15 +2,15 @@ import { Service } from "typedi";
 import { Request, Response } from "express";
 import { GenerateUUID } from "../lib/commonFunctions";
 import NoteDatabaseAccessLayer from "../DatabaseAccessLayer/note.dal";
-import { CreateNoteRequestModel } from "../Model/CreateNoteRequestModel";
 import { UpdateNoteRequestModel } from "../Model/UpdateNoteRequestModel";
+import { CreateNoteType } from "../schema/CreateNote";
 
 @Service()
 export default class NoteService {
   constructor(private readonly noteDA: NoteDatabaseAccessLayer) {}
 
   CreateNote = async (
-    request: Request<{}, {}, CreateNoteRequestModel>,
+    request: Request<{}, {}, CreateNoteType>,
     response: Response
   ) => {
     try {
