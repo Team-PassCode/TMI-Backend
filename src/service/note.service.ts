@@ -5,7 +5,6 @@ import NoteDatabaseAccessLayer from "../DatabaseAccessLayer/note.dal";
 import { CreateNoteRequestModel } from "../Model/CreateNoteRequestModel";
 import { UpdateNoteRequestModel } from "../Model/UpdateNoteRequestModel";
 import LoggerService from "./logger.service";
-import { error } from "winston";
 
 @Service()
 export default class NoteService {
@@ -21,6 +20,11 @@ export default class NoteService {
     let { notes, planId } = request.body;
     const { userid } = request;
     try {
+      const planExists = await this.noteDA.FindById(planId);
+      if (!planExists || Object.keys(planExists).length === 0) {
+        response.status(400).send([{ message: "PlanId does not exist." }]);
+        return;
+      }
       const noteId = GenerateUUID();
 
       await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
