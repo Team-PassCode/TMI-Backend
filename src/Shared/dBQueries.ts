@@ -16,7 +16,7 @@ export const DBqueries = {
   UpdateNotes:
     "Update tbl_Note SET Notes = ?, Updated_On = CURRENT_TIMESTAMP, Updated_By = ? WHERE Note_Id = ?",
   DeleteNote: "Delete From tbl_Note Where Note_Id = ?",
-  FindById: "SELECT * FROM tbl_Note WHERE Note_Id = ?",
+  FindById: "SELECT * FROM tbl_Plan WHERE Plan_Id = ?",
 };
 
 export const DBsp = {

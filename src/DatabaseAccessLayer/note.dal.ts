@@ -8,11 +8,11 @@ export default class NoteDatabaseAccessLayer extends DbConnection {
     super();
   }
 
-  async FindById(planId:string){
-    try{
-      const result=await this.ReadDB(DBqueries.FindById,[planId]);
+  async FindById(planId: string) {
+    try {
+      const result = await this.ReadDB(DBqueries.FindById, [planId]);
       return result;
-    }catch(error){
+    } catch (error) {
       throw error;
     }
   }
