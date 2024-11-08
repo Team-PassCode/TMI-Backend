@@ -8,38 +8,31 @@ export default class NoteDatabaseAccessLayer extends DbConnection {
     super();
   }
 
+  async FindById(planId: string) {
+    const result = await this.ReadDB(DBqueries.FindById, [planId]);
+    return result;
+  }
+
   async SaveNotes(
     notesId: string,
     planId: string,
     notes: string,
     userId: string
   ) {
-    try {
-      await this.InsertOrUpdateDB(
-        [DBqueries.SaveNotes],
-        [[notesId, planId, notes, userId]]
-      );
-    } catch (error) {
-      throw error;
-    }
+    await this.InsertOrUpdateDB(
+      [DBqueries.SaveNotes],
+      [[notesId, planId, notes, userId]]
+    );
   }
 
   async UpdateNotes(notesId: string, notes: string, userId: string) {
-    try {
-      await this.InsertOrUpdateDB(
-        [DBqueries.UpdateNotes],
-        [[notesId, notes, userId]]
-      );
-    } catch (error) {
-      throw error;
-    }
+    await this.InsertOrUpdateDB(
+      [DBqueries.UpdateNotes],
+      [[notesId, notes, userId]]
+    );
   }
 
   async DeleteNote(noteId: string) {
-    try {
-      await this.InsertOrUpdateDB([DBqueries.DeleteNote], [[noteId]]);
-    } catch (error) {
-      throw error;
-    }
+    await this.InsertOrUpdateDB([DBqueries.DeleteNote], [[noteId]]);
   }
 }
