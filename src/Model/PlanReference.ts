@@ -1,5 +1,5 @@
 export interface PlanReference {
-  hyperLink: string;
-  description: string;
-  planReferenceId: string;
+  hyperLink: string | null;
+  description: string | null;
+  planReferenceId: string | null;
 }

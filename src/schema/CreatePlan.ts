@@ -1,46 +1,67 @@
 import { NextFunction, Request, Response } from "express";
-import Joi, { ObjectSchema } from "joi";
-import { validateRequest } from "../middleware/validateRequest";
+import { z } from "zod";
 
-const VerifyEndTime = (value: number, helpers: any) => {
-  const { startTime } = helpers.state.ancestors[0];
-  if (new Date(value) < new Date(startTime))
-    return helpers.error("any.invalid");
-  return value;
+const VerifyEndTime = (startTime: number, endTime: number) => {
+  return new Date(endTime) >= new Date(startTime);
 };
 
-const TimeSchema = Joi.number().required().label("Scheduled On");
+const TimeSchema = z.number({message: "Sheduled On",required_error:"time is required"});
 
-const CreatePlanSchema: ObjectSchema = Joi.object({
-  title: Joi.string().required().label("Plan Title"),
-  description: Joi.string().label("Plan Description").optional().allow(""),
+const BasePlanSchema = z.object({
+  title: z.string({ message: "title" }).nonempty("title is required"),
+  description: z.string({message: "description"}).nonempty("Description is required"),
   // date: Joi.number().required().label("Scheduled On"),
   startTime: TimeSchema,
-  endTime: TimeSchema.custom(VerifyEndTime),
-  planReferences: Joi.array()
-    .items(
-      Joi.object({
-        hyperLink: Joi.string().label("Hyper Link").optional().allow(""),
-        description: Joi.string().label("Description").optional().allow(""),
+  endTime: TimeSchema,
+  planReferences: z.array(
+    z.object({
+        hyperLink: z.string().nullable(),
+        description: z.string().nullable(),
       })
-    )
-    .optional(),
-  breaks: Joi.array()
-    .items(
-      Joi.object({
+  ).optional(),
+  breaks: z.array(
+      z.object({
         startTime: TimeSchema,
-        endTime: TimeSchema.custom(VerifyEndTime),
+        endTime: TimeSchema,
       })
-    )
-    .optional(),
+    ).optional()
 });
+
+const CreatePlanSchema = BasePlanSchema.refine(
+  (data) => VerifyEndTime(data.startTime, data.endTime),
+  {
+    message: "End time must be after start time.",
+    path: ["endTime"],
+  }
+).refine(
+  (data) =>
+    data.breaks
+      ? data.breaks.every((breakTime) =>
+          VerifyEndTime(breakTime.startTime, breakTime.endTime)
+        )
+      : true,
+  {
+    message: "Each break's end time must be after its start time.",
+    path: ["breaks"],
+  }
+);
+
+type CreatePlanType = z.infer<typeof CreatePlanSchema>;
 
 const ValidateCreatePlan = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  validateRequest(req, res, next, CreatePlanSchema);
+  try {
+    CreatePlanSchema.parse(req.body);
+    next();
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: error.errors.map((x)=>x.message)});
+    }
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-export { ValidateCreatePlan, CreatePlanSchema };
+export { ValidateCreatePlan, BasePlanSchema, CreatePlanSchema, CreatePlanType };

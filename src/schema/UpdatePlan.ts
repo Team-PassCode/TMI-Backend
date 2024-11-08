@@ -1,18 +1,27 @@
 import { NextFunction, Request, Response } from "express";
-import Joi, { ObjectSchema } from "joi";
-import { validateRequest } from "../middleware/validateRequest";
-import { CreatePlanSchema } from "./CreatePlan";
+import { BasePlanSchema } from "./CreatePlan";
+import { z } from "zod";
 
-const UpdatePlanSchema: ObjectSchema = CreatePlanSchema.keys({
-  planId: Joi.string().required().label("Plan Id"),
+const UpdatePlanSchema = BasePlanSchema.extend({
+  planId: z.string({ message: "plan id" }).nonempty("planid is required"),
 });
+
+type UpdatePlanType = z.infer<typeof UpdatePlanSchema>;
 
 const ValidateUpdatePlan = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  validateRequest(req, res, next, UpdatePlanSchema);
+  try {
+    UpdatePlanSchema.parse(req.body);
+    next;
+  } catch (error:any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: error.errors.map((x)=>x.message)});
+    }
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-export { ValidateUpdatePlan };
+export { ValidateUpdatePlan, UpdatePlanType };
