@@ -1,5 +1,4 @@
 import Joi, { ObjectSchema } from "joi";
-import { z } from "zod";
 import { validateRequest } from "../middleware/validateRequest";
 import { NextFunction, Request, Response } from "express";
 
