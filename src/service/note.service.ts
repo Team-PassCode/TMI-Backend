@@ -28,23 +28,20 @@ export default class NoteService {
       const noteId = GenerateUUID();
 
       await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
-      this.logger.info("success", {
-        error_message: "success",
-        method_name: request.method,
-        route: request.route.path,
-        requestBody: request.body,
-        userid,
-      });
+
       response.status(200).send({
         noteId,
       });
     } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        methodName: request.method,
-        route: request.route.path,
-        input_params: request.body,
-        created_by: userid,
+        Request_URI: request.route.path,
+        Input_params: JSON.stringify(request.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       response.status(500).send(error);
     }
@@ -54,24 +51,29 @@ export default class NoteService {
     request: Request<{}, {}, UpdateNoteRequestModel>,
     response: Response
   ) => {
+    const { userid } = request;
     try {
       let { noteId, notes } = request.body;
-
-      const { userid } = request;
 
       await this.noteDA.UpdateNotes(noteId, notes, userid);
       response.status(200).send({});
     } catch (error: any) {
       this.logger.error(error, {
-        route: request.route,
-        input_params: request.body,
-        created_by: request.userid,
+        ...error,
+        Request_URI: request.route.path,
+        Input_params: JSON.stringify(request.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       response.status(500).send(error);
     }
   };
 
   DeleteNote = async (request: Request, response: Response) => {
+    let { userid } = request.body;
     try {
       let { noteId } = request.params;
 
@@ -82,7 +84,16 @@ export default class NoteService {
         created_by: request.userid,
       });
     } catch (error: any) {
-      this.logger.error(error, {});
+      this.logger.error(error, {
+        ...error,
+        Request_URI: request.route.path,
+        Input_params: JSON.stringify(request.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
+      });
       response.status(500).send(error);
     }
   };

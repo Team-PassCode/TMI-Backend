@@ -29,7 +29,6 @@ export default class PlanService {
       userid,
     } = req;
     try {
-
       const [plans, planReferences] = await this.planDA.GetPlanDetails(planid);
       if (Array.isArray(plans) && plans.length > 0)
         plans[0]["PlanReferences"] = planReferences;
@@ -37,12 +36,16 @@ export default class PlanService {
       res.status(200).send({
         plans,
       });
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        route: req.route,
-        input_params: req.body,
-        created_by: userid,
+        Request_URI: req.route.path,
+        Input_params: JSON.stringify(req.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       res.status(500).send(error);
     }
@@ -66,12 +69,16 @@ export default class PlanService {
         notes
       );
       res.status(200).send(plansWithPlanReferences);
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        route: req.route,
-        input_params: req.body,
-        created_by: userid,
+        Request_URI: req.route.path,
+        Input_params: JSON.stringify(req.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       res.status(500).send(error);
     }
@@ -89,12 +96,16 @@ export default class PlanService {
         notes
       );
       res.status(200).send(plansWithPlanReferences);
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        route: req.route,
-        input_params: req.body,
-        created_by: userid,
+        Request_URI: req.route.path,
+        Input_params: JSON.stringify(req.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       res.status(500).send(error);
     }
@@ -205,12 +216,16 @@ export default class PlanService {
         notes
       );
       response.status(200).send(plansWithPlanReferences);
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        route: request.route,
-        input_params: request.body,
-        created_by: userid,
+        Request_URI: request.route.path,
+        Input_params: JSON.stringify(request.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       response.status(500).send(error);
     }
@@ -223,7 +238,6 @@ export default class PlanService {
     const { userid } = request;
     try {
       let { title, description, planId } = request.body;
-
 
       const {
         planBreaksToBeSaved,
@@ -253,12 +267,16 @@ export default class PlanService {
       response.status(200).send({
         plansWithPlanReferences,
       });
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        route: request.route,
-        input_params: request.body,
-        created_by: userid,
+        Request_URI: request.route.path,
+        Input_params: JSON.stringify(request.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       response.status(500).send(error);
     }
@@ -299,16 +317,21 @@ export default class PlanService {
   }
 
   DeletePlan = async (request: Request, response: Response) => {
+    let { userid } = request.body;
     try {
       const { planid } = request.params;
       await this.planDA.DeletePlan(planid);
       response.status(200).send();
-    } catch (error:any) {
+    } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        route: request.route,
-        input_params: request.body,
-        // created_by: userid,
+        Request_URI: request.route.path,
+        Input_params: JSON.stringify(request.body),
+        stack_trace: error.stack || null,
+        Level: "error",
+        Message: error.message || "Error",
+        Metadata: JSON.stringify({ ...error }),
+        Caller: userid,
       });
       response.status(500).send(error);
     }

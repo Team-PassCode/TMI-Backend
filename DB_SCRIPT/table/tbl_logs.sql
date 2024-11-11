@@ -1,11 +1,12 @@
-CREATE TABLE tbl_logs (
-    error_id INT AUTO_INCREMENT PRIMARY KEY,
-    method_name VARCHAR(255) NOT NULL,
-    route VARCHAR(255),
-    input_params JSON NULL,
-    error_message VARCHAR(255) NOT NULL,
+CREATE TABLE tbl_Logs (
+    Error_Id INT AUTO_INCREMENT PRIMARY KEY,
+    Request_URI VARCHAR(255),
+    Input_Params JSON NULL,
     stack_trace TEXT,
+    Level VARCHAR(255),
+    Message TEXT,
+    Metadata JSON,
     -- outgoing BOOLEAN NOT NULL,
     created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
-    userid VARCHAR(255)
+    Caller VARCHAR(255) NULL
 );
