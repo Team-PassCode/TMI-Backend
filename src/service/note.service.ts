@@ -35,9 +35,9 @@ export default class NoteService {
     } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        Request_URI: request.route.path,
+        Request_Uri: request.route.path,
         Input_params: JSON.stringify(request.body),
-        stack_trace: error.stack || null,
+        Stack_Trace: error.stack || null,
         Level: "error",
         Message: error.message || "Error",
         Metadata: JSON.stringify({ ...error }),
@@ -60,9 +60,9 @@ export default class NoteService {
     } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        Request_URI: request.route.path,
+        Request_Uri: request.route.path,
         Input_params: JSON.stringify(request.body),
-        stack_trace: error.stack || null,
+        Stack_Trace: error.stack || null,
         Level: "error",
         Message: error.message || "Error",
         Metadata: JSON.stringify({ ...error }),
@@ -86,9 +86,9 @@ export default class NoteService {
     } catch (error: any) {
       this.logger.error(error, {
         ...error,
-        Request_URI: request.route.path,
+        Request_Uri: request.route.path,
         Input_params: JSON.stringify(request.body),
-        stack_trace: error.stack || null,
+        Stack_Trace: error.stack || null,
         Level: "error",
         Message: error.message || "Error",
         Metadata: JSON.stringify({ ...error }),

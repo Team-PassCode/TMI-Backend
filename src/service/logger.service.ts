@@ -10,7 +10,6 @@ export default class LoggerService {
 
   constructor() {
     const transports: winston.transport[] = [];
-    console.log(process.env.NODE_ENV);
 
     if (process.env.NODE_ENV == "DEV") {
       transports.push(
