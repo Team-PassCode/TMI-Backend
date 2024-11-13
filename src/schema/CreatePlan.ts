@@ -1,32 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
+import { validateRequest } from "../middleware/validateRequest";
+import { BasePlanSchema } from "./BasePlanSchema";
 
 const VerifyEndTime = (startTime: number, endTime: number) => {
   return new Date(endTime) >= new Date(startTime);
 };
-
-const TimeSchema = z.number({message: "Sheduled On",required_error:"time is required"});
-
-const BasePlanSchema = z.object({
-  title: z.string({ message: "title" }).nonempty("title is required"),
-  description: z.string({message: "description"}).nonempty("Description is required"),
-  // date: Joi.number().required().label("Scheduled On"),
-  startTime: TimeSchema,
-  endTime: TimeSchema,
-  planReferences: z.array(
-    z.object({
-        hyperLink: z.string().nullable(),
-        description: z.string().nullable(),
-      })
-  ).optional(),
-  breaks: z.array(
-      z.object({
-        startTime: TimeSchema,
-        endTime: TimeSchema,
-      })
-    ).optional()
-});
-
 const CreatePlanSchema = BasePlanSchema.refine(
   (data) => VerifyEndTime(data.startTime, data.endTime),
   {
@@ -53,15 +32,7 @@ const ValidateCreatePlan = (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    CreatePlanSchema.parse(req.body);
-    next();
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: error.errors.map((x)=>x.message)});
-    }
-    res.status(500).json({ message: "Internal server error" });
-  }
+  validateRequest(req, res, next, CreatePlanSchema);
 };
 
 export { ValidateCreatePlan, BasePlanSchema, CreatePlanSchema, CreatePlanType };

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { BasePlanSchema } from "./CreatePlan";
 import { z } from "zod";
+import { validateRequest } from "../middleware/validateRequest";
 
 const UpdatePlanSchema = BasePlanSchema.extend({
   planId: z.string({ message: "plan id" }).nonempty("planid is required"),
@@ -13,15 +14,7 @@ const ValidateUpdatePlan = (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    UpdatePlanSchema.parse(req.body);
-    next;
-  } catch (error:any) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: error.errors.map((x)=>x.message)});
-    }
-    res.status(500).json({ message: "Internal server error" });
-  }
+   validateRequest(req, res, next, UpdatePlanSchema);
 };
 
 export { ValidateUpdatePlan, UpdatePlanType };
