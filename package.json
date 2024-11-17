@@ -18,6 +18,7 @@
     "@types/multer": "^1.4.12",
     "@types/shortid": "^0.0.32",
     "@types/uuid": "^10.0.0",
+    "@types/winston": "^2.4.4",
     "nodemon": "^3.1.7",
     "rimraf": "^6.0.1",
     "ts-node-dev": "^2.0.0",
@@ -39,6 +40,8 @@
     "shortid": "^2.2.16",
     "typedi": "^0.10.0",
     "uuid": "^10.0.0",
+    "winston": "^3.16.0",
+    "winston-transport": "^4.8.0",
     "zod": "^3.23.8"
   }
 }

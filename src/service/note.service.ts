@@ -4,19 +4,22 @@ import { GenerateUUID } from "../lib/commonFunctions";
 import NoteDatabaseAccessLayer from "../DatabaseAccessLayer/note.dal";
 import { CreateNoteRequestModel } from "../Model/CreateNoteRequestModel";
 import { UpdateNoteRequestModel } from "../Model/UpdateNoteRequestModel";
+import LoggerService from "./logger.service";
 
 @Service()
 export default class NoteService {
-  constructor(private readonly noteDA: NoteDatabaseAccessLayer) {}
+  constructor(
+    private readonly noteDA: NoteDatabaseAccessLayer,
+    private readonly logger: LoggerService
+  ) {}
 
   CreateNote = async (
     request: Request<{}, {}, CreateNoteRequestModel>,
     response: Response
   ) => {
+    let { notes, planId } = request.body;
+    const { userid } = request;
     try {
-      let { notes, planId } = request.body;
-      const { userid } = request;
-
       const planExists = await this.noteDA.FindById(planId);
       if (!planExists || Object.keys(planExists).length === 0) {
         response.status(400).send([{ message: "PlanId does not exist." }]);
@@ -25,10 +28,20 @@ export default class NoteService {
       const noteId = GenerateUUID();
 
       await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
+
       response.status(200).send({
         noteId,
       });
-    } catch (error) {
+    } catch (error: any) {
+      this.logger.error(error, {
+        ...error,
+        Request_Uri: request.route.path,
+        Input_Params: request.body,
+        Stack_Trace: error.stack || null,
+        Message: error.message || "Error",
+        Metadata: error,
+        Caller: userid,
+      });
       response.status(500).send(error);
     }
   };
@@ -37,27 +50,47 @@ export default class NoteService {
     request: Request<{}, {}, UpdateNoteRequestModel>,
     response: Response
   ) => {
+    const { userid } = request;
     try {
       let { noteId, notes } = request.body;
 
-      const { userid } = request;
-
       await this.noteDA.UpdateNotes(noteId, notes, userid);
       response.status(200).send({});
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      this.logger.error(error, {
+        ...error,
+        Request_Uri: request.route.path,
+        Input_params: request.body,
+        Stack_Trace: error.stack || null,
+        Message: error.message || "Error",
+        Metadata: error,
+        Caller: userid,
+      });
       response.status(500).send(error);
     }
   };
 
   DeleteNote = async (request: Request, response: Response) => {
+    let { userid } = request.body;
     try {
       let { noteId } = request.params;
 
       await this.noteDA.DeleteNote(noteId);
-      response.status(200).send({});
-    } catch (error) {
-      console.log(error);
+      response.status(200).send({
+        route: request.route,
+        input_params: request.body,
+        created_by: request.userid,
+      });
+    } catch (error: any) {
+      this.logger.error(error, {
+        ...error,
+        Request_Uri: request.route.path,
+        Input_params: request.body,
+        Stack_Trace: error.stack || null,
+        Message: error.message || "Error",
+        Metadata: error,
+        Caller: userid,
+      });
       response.status(500).send(error);
     }
   };
