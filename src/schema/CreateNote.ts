@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { Request, Response, NextFunction } from "express";
 import { validateRequest } from "../middleware/validateRequest";
+import { String } from "./ScemaValidation";
 
 const CreateNoteSchema = z.object({
-  notes: z.string().min(1, "notes is required"),
-  planId: z.string().min(1, "planId is required"),
+  notes: String("Notes", true),
+  planId: String("Plan Id", true),
 });
-
 
 type CreateNoteType = z.infer<typeof CreateNoteSchema>;
 

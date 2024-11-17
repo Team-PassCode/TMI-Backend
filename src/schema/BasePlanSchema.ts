@@ -1,16 +1,17 @@
 import { z } from "zod";
+import { String } from "./ScemaValidation";
 
-const TimeSchema = z
-  .number()
-  .refine((val) => val !== undefined && val !== null, {
-    message: "Time is required",
+const TimeSchema = (fieldName: string) =>
+  z.number({
+    required_error: `${fieldName} is required`,
+    invalid_type_error: `${fieldName} must be of type number`,
   });
 
 const BasePlanSchema = z.object({
-  title: z.string().min(1, { message: "title is required" }),
-  description: z.string().min(1, { message: "Description is required" }),
-  startTime: TimeSchema,
-  endTime: TimeSchema,
+  title: String("Title", true),
+  description: String("Description", true),
+  startTime: TimeSchema("Start-Time"),
+  endTime: TimeSchema("End-Time"),
   planReferences: z
     .array(
       z.object({
@@ -22,8 +23,8 @@ const BasePlanSchema = z.object({
   breaks: z
     .array(
       z.object({
-        startTime: TimeSchema,
-        endTime: TimeSchema,
+        startTime: TimeSchema("Break Start-Time"),
+        endTime: TimeSchema("Break End-Time"),
       })
     )
     .optional(),

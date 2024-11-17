@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { BasePlanSchema } from "./CreatePlan";
 import { z } from "zod";
 import { validateRequest } from "../middleware/validateRequest";
+import { String } from "./ScemaValidation";
 
 const UpdatePlanSchema = BasePlanSchema.extend({
-  planId: z.string().min(1, { message: "plan id is required" }),
+  planId: String("Plan Id", true),
 });
 
 type UpdatePlanType = z.infer<typeof UpdatePlanSchema>;
@@ -14,7 +15,7 @@ const ValidateUpdatePlan = (
   res: Response,
   next: NextFunction
 ) => {
-   validateRequest(req, res, next, UpdatePlanSchema);
+  validateRequest(req, res, next, UpdatePlanSchema);
 };
 
 export { ValidateUpdatePlan, UpdatePlanType };
