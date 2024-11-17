@@ -3,9 +3,10 @@ import { Request, Response, NextFunction } from "express";
 import { validateRequest } from "../middleware/validateRequest";
 
 const CreateNoteSchema = z.object({
-  notes: z.string().nonempty("notes is required"),
-  planId: z.string().nonempty("planId is required"),
+  notes: z.string().min(1, "notes is required"),
+  planId: z.string().min(1, "planId is required"),
 });
+
 
 type CreateNoteType = z.infer<typeof CreateNoteSchema>;
 

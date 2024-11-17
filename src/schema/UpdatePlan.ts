@@ -4,7 +4,7 @@ import { z } from "zod";
 import { validateRequest } from "../middleware/validateRequest";
 
 const UpdatePlanSchema = BasePlanSchema.extend({
-  planId: z.string({ message: "plan id" }).nonempty("planid is required"),
+  planId: z.string().min(1, { message: "plan id is required" }),
 });
 
 type UpdatePlanType = z.infer<typeof UpdatePlanSchema>;

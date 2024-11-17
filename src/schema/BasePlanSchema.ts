@@ -1,16 +1,14 @@
 import { z } from "zod";
 
-const TimeSchema = z.number({
-  message: "Sheduled On",
-  required_error: "time is required",
-});
+const TimeSchema = z
+  .number()
+  .refine((val) => val !== undefined && val !== null, {
+    message: "Time is required",
+  });
 
 const BasePlanSchema = z.object({
-  title: z.string({ message: "title" }).nonempty("title is required"),
-  description: z
-    .string({ message: "description" })
-    .nonempty("Description is required"),
-  // date: Joi.number().required().label("Scheduled On"),
+  title: z.string().min(1, { message: "title is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
   startTime: TimeSchema,
   endTime: TimeSchema,
   planReferences: z
