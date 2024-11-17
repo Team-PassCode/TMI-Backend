@@ -4,6 +4,14 @@ import { Service } from "typedi";
 import env from "dotenv";
 env.config();
 
+const getEnvVariable = (key: string): string => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`${key} not found`);
+  }
+  return value;
+};
+
 @Service()
 export default class LoggerService {
   private _logger: winston.Logger;
@@ -20,11 +28,11 @@ export default class LoggerService {
     } else {
       transports.push(
         new MySQLTransport({
-          host: process.env.DB_HOST || "",
-          user: process.env.DB_USER || "",
-          password: process.env.DB_PASSWORD || "",
-          database: process.env.DATABASE || "",
-          table: process.env.LOG_TABLE || "",
+          host: getEnvVariable("DB_HOST"),
+          user: getEnvVariable("DB_USER"),
+          password: getEnvVariable("DB_PASSWORD"),
+          database: getEnvVariable("DATABASE"),
+          table: getEnvVariable("LOG_TABLE"),
         })
       );
     }

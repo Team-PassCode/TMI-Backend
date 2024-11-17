@@ -40,11 +40,10 @@ export default class PlanService {
       this.logger.error(error, {
         ...error,
         Request_Uri: req.route.path,
-        Input_params: JSON.stringify(req.body),
+        Input_params: req.body,
         Stack_Trace: error.stack || null,
-        Level: "error",
         Message: error.message || "Error",
-        Metadata: JSON.stringify({ ...error }),
+        Metadata: error,
         Caller: userid,
       });
       res.status(500).send(error);
@@ -73,11 +72,10 @@ export default class PlanService {
       this.logger.error(error, {
         ...error,
         Request_Uri: req.route.path,
-        Input_params: JSON.stringify(req.body),
+        Input_params: req.body,
         Stack_Trace: error.stack || null,
-        Level: "error",
         Message: error.message || "Error",
-        Metadata: JSON.stringify({ ...error }),
+        Metadata: error,
         Caller: userid,
       });
       res.status(500).send(error);
@@ -100,11 +98,10 @@ export default class PlanService {
       this.logger.error(error, {
         ...error,
         Request_Uri: req.route.path,
-        Input_params: JSON.stringify(req.body),
+        Input_params: req.body,
         Stack_Trace: error.stack || null,
-        Level: "error",
         Message: error.message || "Error",
-        Metadata: JSON.stringify({ ...error }),
+        Metadata: error,
         Caller: userid,
       });
       res.status(500).send(error);
@@ -220,11 +217,10 @@ export default class PlanService {
       this.logger.error(error, {
         ...error,
         Request_Uri: request.route.path,
-        Input_params: JSON.stringify(request.body),
+        Input_params: request.body,
         Stack_Trace: error.stack || null,
-        Level: "error",
         Message: error.message || "Error",
-        Metadata: JSON.stringify({ ...error }),
+        Metadata: error,
         Caller: userid,
       });
       response.status(500).send(error);
@@ -271,11 +267,10 @@ export default class PlanService {
       this.logger.error(error, {
         ...error,
         Request_Uri: request.route.path,
-        Input_params: JSON.stringify(request.body),
+        Input_params: request.body,
         Stack_Trace: error.stack || null,
-        Level: "error",
         Message: error.message || "Error",
-        Metadata: JSON.stringify({ ...error }),
+        Metadata: error,
         Caller: userid,
       });
       response.status(500).send(error);
@@ -326,11 +321,10 @@ export default class PlanService {
       this.logger.error(error, {
         ...error,
         Request_Uri: request.route.path,
-        Input_params: JSON.stringify(request.body),
+        Input_params: request.body,
         Stack_Trace: error.stack || null,
-        Level: "error",
         Message: error.message || "Error",
-        Metadata: JSON.stringify({ ...error }),
+        Metadata: error,
         Caller: userid,
       });
       response.status(500).send(error);

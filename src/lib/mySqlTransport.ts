@@ -104,7 +104,14 @@ export default class MySQLTransport extends Transport {
   log(info: any, callback: Function) {
     // get log content
 
-    const { Request_Uri, Input_Params, Message, Stack_Trace, Level, Caller } = info;
+    const {
+      Request_Uri,
+      Input_Params,
+      Message,
+      Stack_Trace,
+      Metadata,
+      Caller,
+    } = info;
 
     process.nextTick(() => {
       this.pool.getConnection((err, connection) => {
@@ -118,8 +125,8 @@ export default class MySQLTransport extends Transport {
           Input_Params: JSON.stringify(Input_Params || {}),
           Message: Message,
           Stack_Trace: Stack_Trace || null,
-          Level: Level,
-          Metadata: JSON.stringify({}),
+          Level: info.level,
+          Metadata: Metadata,
           Caller: Caller || null,
         };
 
