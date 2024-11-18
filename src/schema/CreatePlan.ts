@@ -8,7 +8,7 @@ const VerifyEndTime = (startTime: number, endTime: number) => {
 };
 
 const verifyStartTime = (startTime: number) => {
-  return startTime > 0 && !isNaN(new Date(startTime).getTime());
+  return !isNaN(new Date(startTime).getTime());
 };
 const CreatePlanSchema = BasePlanSchema.refine(
   (data) => verifyStartTime(data.startTime),
