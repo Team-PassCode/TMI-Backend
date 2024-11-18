@@ -126,8 +126,8 @@ export default class PlanService {
               breaks: planBreaksOfThisPlan.map<BreakResponseModel>(
                 ({ Start_Time, End_Time }) => {
                   return {
-                    startTime: Start_Time.getTime(),
-                    endTime: End_Time.getTime(),
+                    startTime: new Date(Start_Time).getTime(),
+                    endTime: new Date(End_Time).getTime(),
                   };
                 }
               ),

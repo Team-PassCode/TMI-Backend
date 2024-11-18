@@ -8,14 +8,12 @@ const VerifyEndTime = (startTime: number, endTime: number) => {
 };
 
 const verifyStartTime = (startTime: number) => {
-  const today = new Date().getTime();
-
-  return new Date(startTime).getTime() >= today;
+  return startTime > 0 && !isNaN(new Date(startTime).getTime());
 };
 const CreatePlanSchema = BasePlanSchema.refine(
   (data) => verifyStartTime(data.startTime),
   {
-    message: "Start Time cannot be in the past.",
+    message: "Put a valid Start Time.",
     path: ["startTime"],
   }
 )
@@ -33,6 +31,16 @@ const CreatePlanSchema = BasePlanSchema.refine(
     {
       message: "Each break's end time must be after its start time.",
       path: ["breaks"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.breaks
+        ? data.breaks.every((breakTime) => verifyStartTime(breakTime.startTime))
+        : true,
+    {
+      message: "Put a Valid Break Start Time",
+      path: ["endTime"],
     }
   );
 
