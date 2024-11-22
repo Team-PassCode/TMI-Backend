@@ -40,7 +40,22 @@ const CreatePlanSchema = BasePlanSchema.refine(
         : true,
     {
       message: "Put a Valid Break Start Time",
-      path: ["endTime"],
+      path: ["breaks"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.breaks
+        ? data.breaks.every(
+            (breakTime) =>
+              new Date(breakTime.startTime) >= new Date(data.startTime) &&
+              new Date(breakTime.endTime) <= new Date(data.endTime)
+          )
+        : true,
+    {
+      message:
+        "Break times must fall within the plan's Start Time and End Time.",
+      path: ["breaks"],
     }
   );
 

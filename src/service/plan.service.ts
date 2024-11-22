@@ -226,6 +226,10 @@ export default class PlanService {
         planBreaks,
         notes
       );
+      // if(plansWithPlanReferences?.length==0){
+      //    response.status(400).send([{message:"no such plan Id for update"}])
+      //     return;
+      //   } 
       response.status(200).send({
         plansWithPlanReferences,
       });
