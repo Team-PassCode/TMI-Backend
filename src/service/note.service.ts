@@ -54,8 +54,14 @@ export default class NoteService {
     try {
       let { noteId } = request.params;
 
+      const validNoteId = await this.noteDA.FindByNoteId(noteId);
+      if (!validNoteId || Object.keys(validNoteId).length === 0) {
+        response.status(400).send([{ message: "note id does not exist." }]);
+        return;
+      }
+
       await this.noteDA.DeleteNote(noteId);
-      response.status(200).send({});
+      response.status(200).send([{message:`Successfully deleted note id ${noteId}`}]);
     } catch (error) {
       console.log(error);
       response.status(500).send(error);

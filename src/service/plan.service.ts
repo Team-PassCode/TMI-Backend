@@ -58,7 +58,6 @@ export default class PlanService {
       );
       res.status(200).send(plansWithPlanReferences);
     } catch (error) {
-      console.log(error);
       res.status(500).send(error);
     }
   };
@@ -76,7 +75,6 @@ export default class PlanService {
       );
       res.status(200).send(plansWithPlanReferences);
     } catch (error) {
-      console.log(error);
       res.status(500).send(error);
     }
   };
@@ -187,7 +185,6 @@ export default class PlanService {
       );
       response.status(200).send(plansWithPlanReferences);
     } catch (error) {
-      console.log(error);
       response.status(500).send(error);
     }
   };
@@ -226,15 +223,14 @@ export default class PlanService {
         planBreaks,
         notes
       );
-      // if(plansWithPlanReferences?.length==0){
-      //    response.status(400).send([{message:"no such plan Id for update"}])
-      //     return;
-      //   } 
+      if(plansWithPlanReferences?.length==0){
+         response.status(400).send([{message:"no such plan Id for update"}])
+          return;
+        } 
       response.status(200).send({
         plansWithPlanReferences,
       });
     } catch (error) {
-      console.log(error);
       response.status(500).send(error);
     }
   };
@@ -279,7 +275,6 @@ export default class PlanService {
       await this.planDA.DeletePlan(planid);
       response.status(200).send();
     } catch (error) {
-      console.error(error);
       response.status(500).send(error);
     }
   };
