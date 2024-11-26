@@ -6,6 +6,7 @@ import config from "./Shared/config";
 import Container from "typedi";
 import { PlanRouter } from "./api/index";
 import NoteRouter from "./api/note.routes";
+import { errorHandler } from "./middleware/errorHandler";
 
 class App {
   private app: Express;
@@ -16,6 +17,7 @@ class App {
     this.router = express.Router();
     this.setMiddleware();
     this.setRoutes();
+    this.setErrorHandler();
     this.startApp();
   }
 
@@ -30,6 +32,10 @@ class App {
     this.app.use("/", this.router);
     Container.get(PlanRouter).SetRouter(this.router);
     Container.get(NoteRouter).SetRouter(this.router);
+  }
+
+  setErrorHandler(){
+    this.app.use(errorHandler);
   }
 
   startApp() {
