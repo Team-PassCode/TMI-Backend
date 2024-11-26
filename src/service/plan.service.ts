@@ -223,10 +223,10 @@ export default class PlanService {
         planBreaks,
         notes
       );
-      if(plansWithPlanReferences?.length==0){
-         response.status(400).send([{message:"no such plan Id for update"}])
-          return;
-        } 
+      if (plansWithPlanReferences?.length == 0) {
+        response.status(400).send([{ message: "Plan Id not found" }]);
+        return;
+      }
       response.status(200).send({
         plansWithPlanReferences,
       });
@@ -235,9 +235,7 @@ export default class PlanService {
     }
   };
 
-  PrepareCreateAndUpdateData(
-    body: CreatePlanType | UpdatePlanType
-  ) {
+  PrepareCreateAndUpdateData(body: CreatePlanType | UpdatePlanType) {
     let { startTime, endTime, planReferences, breaks } = body;
 
     let planReferencesToBeSaved: PlanReference[] = [];
