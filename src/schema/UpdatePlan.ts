@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import Joi, { ObjectSchema } from "joi";
+import { BasePlanSchema } from "./CreatePlan";
+import { z } from "zod";
 import { validateRequest } from "../middleware/validateRequest";
-import { CreatePlanSchema } from "./CreatePlan";
+import { String } from "./ScemaValidation";
 
-const UpdatePlanSchema: ObjectSchema = CreatePlanSchema.keys({
-  planId: Joi.string().required().label("Plan Id"),
+const UpdatePlanSchema = BasePlanSchema.extend({
+  planId: String("Plan Id", true),
 });
+
+type UpdatePlanType = z.infer<typeof UpdatePlanSchema>;
 
 const ValidateUpdatePlan = (
   req: Request,
@@ -15,4 +18,4 @@ const ValidateUpdatePlan = (
   validateRequest(req, res, next, UpdatePlanSchema);
 };
 
-export { ValidateUpdatePlan };
+export { ValidateUpdatePlan, UpdatePlanType };

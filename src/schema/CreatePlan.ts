@@ -1,39 +1,65 @@
 import { NextFunction, Request, Response } from "express";
-import Joi, { ObjectSchema } from "joi";
+import { z } from "zod";
 import { validateRequest } from "../middleware/validateRequest";
+import { BasePlanSchema } from "./BasePlanSchema";
 
-const VerifyEndTime = (value: number, helpers: any) => {
-  const { startTime } = helpers.state.ancestors[0];
-  if (new Date(value) < new Date(startTime))
-    return helpers.error("any.invalid");
-  return value;
+const VerifyEndTime = (startTime: number, endTime: number) => {
+  return new Date(endTime) >= new Date(startTime);
 };
 
-const TimeSchema = Joi.number().required().label("Scheduled On");
+const verifyStartTime = (startTime: number) => {
+  return !isNaN(new Date(startTime).getTime());
+};
+const CreatePlanSchema = BasePlanSchema.refine(
+  (data) => verifyStartTime(data.startTime),
+  {
+    message: "Put a valid Start Time.",
+    path: ["startTime"],
+  }
+)
+  .refine((data) => VerifyEndTime(data.startTime, data.endTime), {
+    message: "End Time must be after start time.",
+    path: ["endTime"],
+  })
+  .refine(
+    (data) =>
+      data.breaks
+        ? data.breaks.every((breakTime) =>
+            VerifyEndTime(breakTime.startTime, breakTime.endTime)
+          )
+        : true,
+    {
+      message: "Each break's end time must be after its start time.",
+      path: ["breaks"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.breaks
+        ? data.breaks.every((breakTime) => verifyStartTime(breakTime.startTime))
+        : true,
+    {
+      message: "Put a Valid Break Start Time",
+      path: ["breaks"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.breaks
+        ? data.breaks.every(
+            (breakTime) =>
+              new Date(breakTime.startTime) >= new Date(data.startTime) &&
+              new Date(breakTime.endTime) <= new Date(data.endTime)
+          )
+        : true,
+    {
+      message:
+        "Break times must fall within the plan's Start Time and End Time.",
+      path: ["breaks"],
+    }
+  );
 
-const CreatePlanSchema: ObjectSchema = Joi.object({
-  title: Joi.string().required().label("Plan Title"),
-  description: Joi.string().label("Plan Description").optional().allow(""),
-  // date: Joi.number().required().label("Scheduled On"),
-  startTime: TimeSchema,
-  endTime: TimeSchema.custom(VerifyEndTime),
-  planReferences: Joi.array()
-    .items(
-      Joi.object({
-        hyperLink: Joi.string().label("Hyper Link").optional().allow(""),
-        description: Joi.string().label("Description").optional().allow(""),
-      })
-    )
-    .optional(),
-  breaks: Joi.array()
-    .items(
-      Joi.object({
-        startTime: TimeSchema,
-        endTime: TimeSchema.custom(VerifyEndTime),
-      })
-    )
-    .optional(),
-});
+type CreatePlanType = z.infer<typeof CreatePlanSchema>;
 
 const ValidateCreatePlan = (
   req: Request,
@@ -43,4 +69,4 @@ const ValidateCreatePlan = (
   validateRequest(req, res, next, CreatePlanSchema);
 };
 
-export { ValidateCreatePlan, CreatePlanSchema };
+export { ValidateCreatePlan, BasePlanSchema, CreatePlanSchema, CreatePlanType };

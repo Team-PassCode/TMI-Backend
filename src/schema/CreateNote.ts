@@ -1,11 +1,14 @@
-import { NextFunction, Request, Response } from "express";
-import Joi, { ObjectSchema } from "joi";
+import { z } from "zod";
+import { Request, Response, NextFunction } from "express";
 import { validateRequest } from "../middleware/validateRequest";
+import { String } from "./ScemaValidation";
 
-const CreateNoteSchema: ObjectSchema = Joi.object({
-  notes: Joi.string().required().label("Notes"),
-  planId: Joi.string().required().label("Plan Id"),
+const CreateNoteSchema = z.object({
+  notes: String("Notes", true),
+  planId: String("Plan Id", true),
 });
+
+type CreateNoteType = z.infer<typeof CreateNoteSchema>;
 
 const ValidateCreateNote = (
   req: Request,
@@ -15,4 +18,4 @@ const ValidateCreateNote = (
   validateRequest(req, res, next, CreateNoteSchema);
 };
 
-export { ValidateCreateNote, CreateNoteSchema };
+export { ValidateCreateNote, CreateNoteSchema, CreateNoteType };

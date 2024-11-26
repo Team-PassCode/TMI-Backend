@@ -7,13 +7,13 @@ import PlanDA, {
 } from "../DatabaseAccessLayer/plan.dal";
 import { Request, Response } from "express";
 import { GenerateUUID } from "../lib/commonFunctions";
-import { CreatePlanRequestModel } from "../Model/CreatePlanRequestModel";
-import { UpdatePlanRequestModel } from "../Model/UpdatePlanRequestModel";
 import { GetPlan } from "../Model/GetPlanModel";
 import { PlanReference } from "../Model/PlanReference";
 import { Break } from "../Model/Break";
 import { Note } from "../Model/Note";
 import { BreakResponseModel } from "../Model/BreakResponseModel";
+import { CreatePlanType } from "../schema/CreatePlan";
+import { UpdatePlanType } from "../schema/UpdatePlan";
 
 @Service()
 export default class PlanService {
@@ -58,7 +58,6 @@ export default class PlanService {
       );
       res.status(200).send(plansWithPlanReferences);
     } catch (error) {
-      console.log(error);
       res.status(500).send(error);
     }
   };
@@ -76,7 +75,6 @@ export default class PlanService {
       );
       res.status(200).send(plansWithPlanReferences);
     } catch (error) {
-      console.log(error);
       res.status(500).send(error);
     }
   };
@@ -126,8 +124,8 @@ export default class PlanService {
               breaks: planBreaksOfThisPlan.map<BreakResponseModel>(
                 ({ Start_Time, End_Time }) => {
                   return {
-                    startTime: Start_Time.getTime(),
-                    endTime: End_Time.getTime(),
+                    startTime: new Date(Start_Time).getTime(),
+                    endTime: new Date(End_Time).getTime(),
                   };
                 }
               ),
@@ -150,7 +148,7 @@ export default class PlanService {
   };
 
   CreatePlan = async (
-    request: Request<{}, {}, CreatePlanRequestModel>,
+    request: Request<{}, {}, CreatePlanType>,
     response: Response
   ) => {
     try {
@@ -187,13 +185,12 @@ export default class PlanService {
       );
       response.status(200).send(plansWithPlanReferences);
     } catch (error) {
-      console.log(error);
       response.status(500).send(error);
     }
   };
 
   UpdatePlan = async (
-    request: Request<{}, {}, UpdatePlanRequestModel>,
+    request: Request<{}, {}, UpdatePlanType>,
     response: Response
   ) => {
     try {
@@ -226,18 +223,19 @@ export default class PlanService {
         planBreaks,
         notes
       );
+      if (plansWithPlanReferences?.length == 0) {
+        response.status(400).send([{ message: "Plan Id not found" }]);
+        return;
+      }
       response.status(200).send({
         plansWithPlanReferences,
       });
     } catch (error) {
-      console.log(error);
       response.status(500).send(error);
     }
   };
 
-  PrepareCreateAndUpdateData(
-    body: CreatePlanRequestModel | UpdatePlanRequestModel
-  ) {
+  PrepareCreateAndUpdateData(body: CreatePlanType | UpdatePlanType) {
     let { startTime, endTime, planReferences, breaks } = body;
 
     let planReferencesToBeSaved: PlanReference[] = [];
@@ -246,8 +244,8 @@ export default class PlanService {
     if (Array.isArray(planReferences)) {
       planReferencesToBeSaved = planReferences.map<PlanReference>((p) => {
         return {
-          hyperLink: p.hyperLink,
-          description: p.description,
+          hyperLink: p?.hyperLink,
+          description: p?.description,
           planReferenceId: GenerateUUID(),
         };
       });
@@ -275,7 +273,6 @@ export default class PlanService {
       await this.planDA.DeletePlan(planid);
       response.status(200).send();
     } catch (error) {
-      console.error(error);
       response.status(500).send(error);
     }
   };

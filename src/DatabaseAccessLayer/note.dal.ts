@@ -13,6 +13,11 @@ export default class NoteDatabaseAccessLayer extends DbConnection {
     return result;
   }
 
+  async FindByNoteId(NoteId:string){
+    const result=await this.ReadDB(DBqueries.FindByNoteId,[NoteId]);
+    return result;
+  }
+
   async SaveNotes(
     notesId: string,
     planId: string,
