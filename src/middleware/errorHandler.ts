@@ -1,10 +1,7 @@
-import { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 
-export const errorHandler: ErrorRequestHandler = (
-  err,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  res.status(500).send([{message:err.stack}]);
+import { Request, Response, NextFunction } from "express";
+
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+
+  res.status(err.status || 500).json([{message: err.stack}]);
 };

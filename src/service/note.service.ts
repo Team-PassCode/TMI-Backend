@@ -13,6 +13,7 @@ export default class NoteService {
     request: Request<{}, {}, CreateNoteType>,
     response: Response
   ) => {
+    // throw new Error("Create note error")
     let { notes, planId } = request.body;
     const { userid } = request;
 
@@ -27,7 +28,7 @@ export default class NoteService {
     response.status(200).send({
       noteId,
     });
-  };
+}
 
   UpdateNote = async (
     request: Request<{}, {}, UpdateNoteRequestModel>,
