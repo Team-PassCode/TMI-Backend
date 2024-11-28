@@ -9,7 +9,7 @@ export default class NoteRouter {
   constructor(private readonly noteService: NoteService) {}
 
   SetRouter(router: Router) {
-    router.post("/note", ValidateCreateNote, this.noteService.CreateNote);
+    router.post("/note",ValidateCreateNote,this.noteService.CreateNote);
     router.delete("/note/:noteId", this.noteService.DeleteNote);
   }
 }

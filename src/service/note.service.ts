@@ -13,58 +13,47 @@ export default class NoteService {
     request: Request<{}, {}, CreateNoteType>,
     response: Response
   ) => {
-    try {
-      let { notes, planId } = request.body;
-      const { userid } = request;
+    // throw new Error("Create note error")
+    let { notes, planId } = request.body;
+    const { userid } = request;
 
-      const planExists = await this.noteDA.FindById(planId);
-      if (!planExists || Object.keys(planExists).length === 0) {
-        response.status(400).send([{ message: "PlanId does not exist." }]);
-        return;
-      }
-      const noteId = GenerateUUID();
-
-      await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
-      response.status(200).send({
-        noteId,
-      });
-    } catch (error) {
-      response.status(500).send(error);
+    const planExists = await this.noteDA.FindById(planId);
+    if (!planExists || Object.keys(planExists).length === 0) {
+      response.status(400).send([{ message: "PlanId does not exist." }]);
+      return;
     }
-  };
+    const noteId = GenerateUUID();
+
+    await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
+    response.status(200).send({
+      noteId,
+    });
+}
 
   UpdateNote = async (
     request: Request<{}, {}, UpdateNoteRequestModel>,
     response: Response
   ) => {
-    try {
-      let { noteId, notes } = request.body;
+    let { noteId, notes } = request.body;
 
-      const { userid } = request;
+    const { userid } = request;
 
-      await this.noteDA.UpdateNotes(noteId, notes, userid);
-      response.status(200).send({});
-    } catch (error) {
-      console.log(error);
-      response.status(500).send(error);
-    }
+    await this.noteDA.UpdateNotes(noteId, notes, userid);
+    response.status(200).send({});
   };
 
   DeleteNote = async (request: Request, response: Response) => {
-    try {
-      let { noteId } = request.params;
+    let { noteId } = request.params;
 
-      const validNoteId = await this.noteDA.FindByNoteId(noteId);
-      if (!validNoteId || Object.keys(validNoteId).length === 0) {
-        response.status(400).send([{ message: "note id does not exist." }]);
-        return;
-      }
-
-      await this.noteDA.DeleteNote(noteId);
-      response.status(200).send([{message:`Successfully deleted note id ${noteId}`}]);
-    } catch (error) {
-      console.log(error);
-      response.status(500).send(error);
+    const validNoteId = await this.noteDA.FindByNoteId(noteId);
+    if (!validNoteId || Object.keys(validNoteId).length === 0) {
+      response.status(400).send([{ message: "note id does not exist." }]);
+      return;
     }
+
+    await this.noteDA.DeleteNote(noteId);
+    response
+      .status(200)
+      .send([{ message: `Successfully deleted note id ${noteId}` }]);
   };
 }

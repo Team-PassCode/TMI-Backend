@@ -20,7 +20,6 @@ export default class PlanService {
   constructor(private readonly planDA: PlanDA) {}
 
   GetPlanDetails = async (req: Request, res: Response) => {
-    try {
       const {
         params: { planid },
         userid,
@@ -33,14 +32,9 @@ export default class PlanService {
       res.status(200).send({
         plans,
       });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send(error);
-    }
   };
 
   GetPlansOfSpecifiedDate = async (req: Request, res: Response) => {
-    try {
       const {
         params: { date },
         userid,
@@ -57,13 +51,9 @@ export default class PlanService {
         notes
       );
       res.status(200).send(plansWithPlanReferences);
-    } catch (error) {
-      res.status(500).send(error);
-    }
   };
 
   GetPlanList = async (req: Request, res: Response) => {
-    try {
       const { userid } = req;
       const [plans, planReferences, planBreaks, notes] =
         await this.planDA.GetPlanList(userid ?? "");
@@ -74,9 +64,6 @@ export default class PlanService {
         notes
       );
       res.status(200).send(plansWithPlanReferences);
-    } catch (error) {
-      res.status(500).send(error);
-    }
   };
 
   GetPlan = (
@@ -151,7 +138,6 @@ export default class PlanService {
     request: Request<{}, {}, CreatePlanType>,
     response: Response
   ) => {
-    try {
       let { title, description } = request.body;
 
       const { userid } = request;
@@ -184,16 +170,12 @@ export default class PlanService {
         notes
       );
       response.status(200).send(plansWithPlanReferences);
-    } catch (error) {
-      response.status(500).send(error);
-    }
   };
 
   UpdatePlan = async (
     request: Request<{}, {}, UpdatePlanType>,
     response: Response
   ) => {
-    try {
       let { title, description, planId } = request.body;
 
       const { userid } = request;
@@ -230,9 +212,6 @@ export default class PlanService {
       response.status(200).send({
         plansWithPlanReferences,
       });
-    } catch (error) {
-      response.status(500).send(error);
-    }
   };
 
   PrepareCreateAndUpdateData(body: CreatePlanType | UpdatePlanType) {
@@ -268,12 +247,8 @@ export default class PlanService {
   }
 
   DeletePlan = async (request: Request, response: Response) => {
-    try {
       const { planid } = request.params;
       await this.planDA.DeletePlan(planid);
       response.status(200).send();
-    } catch (error) {
-      response.status(500).send(error);
-    }
   };
 }
