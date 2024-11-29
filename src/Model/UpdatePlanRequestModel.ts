@@ -1,6 +1,6 @@
-import { BreakRequestModel } from "./BreakRequestModel";
-import { PlanReference } from "./PlanReference";
-import { Time } from "./TimeRequestModel";
+import { BreakRequestModel } from './BreakRequestModel';
+import { PlanReference } from './PlanReference';
+import { Time } from './TimeRequestModel';
 
 export interface UpdatePlanRequestModel {
   planId: string;

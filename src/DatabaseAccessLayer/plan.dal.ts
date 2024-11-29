@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { DBqueries, DBsp } from "../Shared/dBQueries";
-import DbConnection from "./dbConnection";
-import { PlanReference } from "../Model/PlanReference";
-import { RowDataPacket } from "mysql2";
-import { Break } from "../Model/Break";
+import { Service } from 'typedi';
+import { DBqueries, DBsp } from '../Shared/dBQueries';
+import DbConnection from './dbConnection';
+import { PlanReference } from '../Model/PlanReference';
+import { RowDataPacket } from 'mysql2';
+import { Break } from '../Model/Break';
 
 export interface PlanD extends RowDataPacket {
   Plan_Id: string;

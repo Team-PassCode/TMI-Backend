@@ -1,4 +1,4 @@
-import { Time } from "./TimeRequestModel";
+import { Time } from './TimeRequestModel';
 
 export interface BreakRequestModel {
   startTime: number;

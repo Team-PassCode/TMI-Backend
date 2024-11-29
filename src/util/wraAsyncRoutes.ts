@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { asyncErrorHandler } from "./asyncErrorHandler";
+import { Router } from 'express';
+import { asyncErrorHandler } from './asyncErrorHandler';
 
 export const wrapAsyncRoutes = (router: Router) => {
   router.stack.forEach((layer: any) => {

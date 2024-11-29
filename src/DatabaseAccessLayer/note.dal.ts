@@ -1,6 +1,6 @@
-import { Service } from "typedi";
-import DbConnection from "./dbConnection";
-import { DBqueries } from "../Shared/dBQueries";
+import { Service } from 'typedi';
+import DbConnection from './dbConnection';
+import { DBqueries } from '../Shared/dBQueries';
 
 @Service()
 export default class NoteDatabaseAccessLayer extends DbConnection {
@@ -13,8 +13,8 @@ export default class NoteDatabaseAccessLayer extends DbConnection {
     return result;
   }
 
-  async FindByNoteId(NoteId:string){
-    const result=await this.ReadDB(DBqueries.FindByNoteId,[NoteId]);
+  async FindByNoteId(NoteId: string) {
+    const result = await this.ReadDB(DBqueries.FindByNoteId, [NoteId]);
     return result;
   }
 

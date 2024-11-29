@@ -1,5 +1,5 @@
-import mysql, { Pool } from "mysql2/promise";
-import { ConvertUndefinedToNull } from "../lib/commonFunctions";
+import mysql, { Pool } from 'mysql2/promise';
+import { ConvertUndefinedToNull } from '../lib/commonFunctions';
 
 export default class DbConnection {
   private poolConnection: Pool;
@@ -25,7 +25,7 @@ export default class DbConnection {
       let resultSet: mysql.QueryResult[] = [];
       const connection = await this.poolConnection.getConnection();
       await connection.execute(
-        "SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED"
+        'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED'
       );
       await connection.beginTransaction();
 

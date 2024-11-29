@@ -1,5 +1,5 @@
-import { Note } from "./Note";
-import { PlanReference } from "./PlanReference";
+import { Note } from './Note';
+import { PlanReference } from './PlanReference';
 
 export interface GetPlan {
   planId: string;

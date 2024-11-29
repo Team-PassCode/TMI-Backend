@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from "express";
-import { z, ZodSchema } from "zod";
+import { NextFunction, Request, Response } from 'express';
+import { z, ZodSchema } from 'zod';
 /**
  * Middleware to validate the request body against a provided Zod schema.
  *
@@ -25,7 +25,7 @@ function validateRequest(
         })
       );
     }
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 }
 

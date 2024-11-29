@@ -1,15 +1,15 @@
-import { v4 as UUIDv4 } from "uuid";
-import crypto from "crypto";
-import { EncDecAlgorithm, MAX_YEAR_IN_CALENDAR } from "../Shared/constants";
+import { v4 as UUIDv4 } from 'uuid';
+import crypto from 'crypto';
+import { EncDecAlgorithm, MAX_YEAR_IN_CALENDAR } from '../Shared/constants';
 
 export const FormatDate = (tempDate: Date): string => {
   const month =
     tempDate.getMonth() + 1 >= 10
       ? tempDate.getMonth() + 1
-      : "0" + (tempDate.getMonth() + 1);
+      : '0' + (tempDate.getMonth() + 1);
   const day =
-    tempDate.getDate() >= 10 ? tempDate.getDate() : "0" + tempDate.getDate();
-  return tempDate.getFullYear() + "-" + month + "-" + day;
+    tempDate.getDate() >= 10 ? tempDate.getDate() : '0' + tempDate.getDate();
+  return tempDate.getFullYear() + '-' + month + '-' + day;
 };
 
 export const GenerateUUID = (): string => {
@@ -30,7 +30,7 @@ export const IsEmail = (email: string): boolean => {
 };
 
 export const BoolToYnN = (value: boolean) => {
-  return value ? "Y" : "N";
+  return value ? 'Y' : 'N';
 };
 
 export const GetCalendarMaxdate = (): Date => {
@@ -47,7 +47,7 @@ export const GenerateRandomBytes = () => {
 };
 
 const GetEmptyBuffer = () => {
-  return Buffer.from("");
+  return Buffer.from('');
 };
 
 export const EncryptData = (data: any, key: string, iv?: any): string => {
@@ -58,9 +58,9 @@ export const EncryptData = (data: any, key: string, iv?: any): string => {
       iv ?? null
     );
 
-    let encryptedData = cipher.update(data, "utf-8", "hex");
+    let encryptedData = cipher.update(data, 'utf-8', 'hex');
 
-    encryptedData += cipher.final("hex");
+    encryptedData += cipher.final('hex');
 
     return encryptedData;
   } catch (error) {
@@ -76,9 +76,9 @@ export const DecryptData = (data: any, key: string, iv?: any): string => {
       iv ?? null
     );
 
-    let decryptedData = decipher.update(data, "hex", "utf-8");
+    let decryptedData = decipher.update(data, 'hex', 'utf-8');
 
-    decryptedData += decipher.final("utf8");
+    decryptedData += decipher.final('utf8');
 
     return decryptedData;
   } catch (error) {
