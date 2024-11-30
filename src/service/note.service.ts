@@ -22,6 +22,15 @@ export default class NoteService {
       response.status(400).send([{ message: 'PlanId does not exist.' }]);
       return;
     }
+
+
+
+
+
+
+
+
+    
     const noteId = GenerateUUID();
 
     await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? '');

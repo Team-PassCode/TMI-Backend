@@ -23,6 +23,8 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': 'off',
+      'no-console': 'error',
       'prettier/prettier': 'error',
     },
   },
@@ -32,18 +34,6 @@ export default [
       sourceType: 'module',
     },
     rules: {
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'warn', // Or "error"
-        {
-          vars: 'all', // Check all variables
-          args: 'after-used', // Ignore unused arguments after the last used one
-          ignoreRestSiblings: true, // Ignore destructuring rest siblings
-          varsIgnorePattern: '^_', // Ignore variables starting with _
-          argsIgnorePattern: '^_', // Ignore arguments starting with _
-        },
-      ],
-      'no-console': 'error',
       'prettier/prettier': 'error',
     },
   },
