@@ -23,14 +23,6 @@ export default class NoteService {
       return;
     }
 
-
-
-
-
-
-
-
-    
     const noteId = GenerateUUID();
 
     await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? '');
