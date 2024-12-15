@@ -1,69 +1,69 @@
-import { Service } from "typedi";
+import { Service } from 'typedi';
 import PlanDA, {
   NoteD,
   PlanBreakD,
   PlanD,
   PlanReferenceD,
-} from "../DatabaseAccessLayer/plan.dal";
-import { Request, Response } from "express";
-import { GenerateUUID } from "../lib/commonFunctions";
-import { GetPlan } from "../Model/GetPlanModel";
-import { PlanReference } from "../Model/PlanReference";
-import { Break } from "../Model/Break";
-import { Note } from "../Model/Note";
-import { BreakResponseModel } from "../Model/BreakResponseModel";
-import { CreatePlanType } from "../schema/CreatePlan";
-import { UpdatePlanType } from "../schema/UpdatePlan";
+} from '../DatabaseAccessLayer/plan.dal';
+import { Request, Response } from 'express';
+import { GenerateUUID } from '../lib/commonFunctions';
+import { GetPlan } from '../Model/GetPlanModel';
+import { PlanReference } from '../Model/PlanReference';
+import { Break } from '../Model/Break';
+import { Note } from '../Model/Note';
+import { BreakResponseModel } from '../Model/BreakResponseModel';
+import { CreatePlanType } from '../schema/CreatePlan';
+import { UpdatePlanType } from '../schema/UpdatePlan';
 
 @Service()
 export default class PlanService {
   constructor(private readonly planDA: PlanDA) {}
 
   GetPlanDetails = async (req: Request, res: Response) => {
-      const {
-        params: { planid },
-        userid,
-      } = req;
+    const {
+      params: { planid },
+      userid,
+    } = req;
 
-      const [plans, planReferences] = await this.planDA.GetPlanDetails(planid);
-      if (Array.isArray(plans) && plans.length > 0)
-        plans[0]["PlanReferences"] = planReferences;
+    const [plans, planReferences] = await this.planDA.GetPlanDetails(planid);
+    if (Array.isArray(plans) && plans.length > 0)
+      plans[0]['PlanReferences'] = planReferences;
 
-      res.status(200).send({
-        plans,
-      });
+    res.status(200).send({
+      plans,
+    });
   };
 
   GetPlansOfSpecifiedDate = async (req: Request, res: Response) => {
-      const {
-        params: { date },
-        userid,
-      } = req;
-      const [plans, planReferences, planBreaks, notes] =
-        await this.planDA.GetPlansOfSpecifiedDate(
-          new Date(parseInt(date)),
-          userid ?? ""
-        );
-      const plansWithPlanReferences = this.GetPlan(
-        plans,
-        planReferences,
-        planBreaks,
-        notes
+    const {
+      params: { date },
+      userid,
+    } = req;
+    const [plans, planReferences, planBreaks, notes] =
+      await this.planDA.GetPlansOfSpecifiedDate(
+        new Date(parseInt(date)),
+        userid ?? ''
       );
-      res.status(200).send(plansWithPlanReferences);
+    const plansWithPlanReferences = this.GetPlan(
+      plans,
+      planReferences,
+      planBreaks,
+      notes
+    );
+    res.status(200).send(plansWithPlanReferences);
   };
 
   GetPlanList = async (req: Request, res: Response) => {
-      const { userid } = req;
-      const [plans, planReferences, planBreaks, notes] =
-        await this.planDA.GetPlanList(userid ?? "");
-      const plansWithPlanReferences = this.GetPlan(
-        plans,
-        planReferences,
-        planBreaks,
-        notes
-      );
-      res.status(200).send(plansWithPlanReferences);
+    const { userid } = req;
+    const [plans, planReferences, planBreaks, notes] =
+      await this.planDA.GetPlanList(userid ?? '');
+    const plansWithPlanReferences = this.GetPlan(
+      plans,
+      planReferences,
+      planBreaks,
+      notes
+    );
+    res.status(200).send(plansWithPlanReferences);
   };
 
   GetPlan = (
@@ -138,80 +138,80 @@ export default class PlanService {
     request: Request<{}, {}, CreatePlanType>,
     response: Response
   ) => {
-      let { title, description } = request.body;
+    let { title, description } = request.body;
 
-      const { userid } = request;
-      const planId = GenerateUUID();
+    const { userid } = request;
+    const planId = GenerateUUID();
 
-      const {
-        planBreaksToBeSaved,
-        planEndTime,
-        planReferencesToBeSaved,
-        planStartTime,
-      } = this.PrepareCreateAndUpdateData(request.body);
+    const {
+      planBreaksToBeSaved,
+      planEndTime,
+      planReferencesToBeSaved,
+      planStartTime,
+    } = this.PrepareCreateAndUpdateData(request.body);
 
-      await this.planDA.CreatePlan(
-        planId,
-        userid ?? "",
-        title,
-        description,
-        planStartTime,
-        planEndTime,
-        userid ?? "",
-        planReferencesToBeSaved,
-        planBreaksToBeSaved
-      );
-      const [plans, planReferences, planBreaks, notes] =
-        await this.planDA.GetPlanDetails(planId);
-      const plansWithPlanReferences = this.GetPlan(
-        plans,
-        planReferences,
-        planBreaks,
-        notes
-      );
-      response.status(200).send(plansWithPlanReferences);
+    await this.planDA.CreatePlan(
+      planId,
+      userid ?? '',
+      title,
+      description,
+      planStartTime,
+      planEndTime,
+      userid ?? '',
+      planReferencesToBeSaved,
+      planBreaksToBeSaved
+    );
+    const [plans, planReferences, planBreaks, notes] =
+      await this.planDA.GetPlanDetails(planId);
+    const plansWithPlanReferences = this.GetPlan(
+      plans,
+      planReferences,
+      planBreaks,
+      notes
+    );
+    response.status(200).send(plansWithPlanReferences);
   };
 
   UpdatePlan = async (
     request: Request<{}, {}, UpdatePlanType>,
     response: Response
   ) => {
-      let { title, description, planId } = request.body;
+    let { title, description, planId } = request.body;
 
-      const { userid } = request;
+    const { userid } = request;
 
-      const {
-        planBreaksToBeSaved,
-        planEndTime,
-        planReferencesToBeSaved,
-        planStartTime,
-      } = this.PrepareCreateAndUpdateData(request.body);
+    const {
+      planBreaksToBeSaved,
+      planEndTime,
+      planReferencesToBeSaved,
+      planStartTime,
+    } = this.PrepareCreateAndUpdateData(request.body);
 
-      await this.planDA.UpdatePlan(
-        planId,
-        title,
-        description,
-        planStartTime,
-        planEndTime,
-        userid ?? "",
-        planReferencesToBeSaved,
-        planBreaksToBeSaved
-      );
-      const [plans, planReferences, planBreaks, notes] =
-        await this.planDA.GetPlanDetails(planId);
-      const plansWithPlanReferences = this.GetPlan(
-        plans,
-        planReferences,
-        planBreaks,
-        notes
-      );
-      if (plansWithPlanReferences?.length == 0) {
-        response.status(400).send([{ message: "Plan Id not found" }]);
-        return;
-      }
-      response.status(200).send({
-        plansWithPlanReferences,
-      });
+    await this.planDA.UpdatePlan(
+      planId,
+      title,
+      description,
+      planStartTime,
+      planEndTime,
+      userid ?? '',
+      planReferencesToBeSaved,
+      planBreaksToBeSaved
+    );
+    const [plans, planReferences, planBreaks, notes] =
+      await this.planDA.GetPlanDetails(planId);
+    const plansWithPlanReferences = this.GetPlan(
+      plans,
+      planReferences,
+      planBreaks,
+      notes
+    );
+    if (plansWithPlanReferences?.length == 0) {
+      response.status(400).send([{ message: 'Plan Id not found' }]);
+      return;
+    }
+    response.status(200).send({
+      plansWithPlanReferences,
+    });
   };
 
   PrepareCreateAndUpdateData(body: CreatePlanType | UpdatePlanType) {
@@ -247,8 +247,8 @@ export default class PlanService {
   }
 
   DeletePlan = async (request: Request, response: Response) => {
-      const { planid } = request.params;
-      await this.planDA.DeletePlan(planid);
-      response.status(200).send();
+    const { planid } = request.params;
+    await this.planDA.DeletePlan(planid);
+    response.status(200).send();
   };
 }

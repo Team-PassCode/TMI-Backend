@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const String = (fieldName: string, required: boolean) => {
   let schema = z.string({

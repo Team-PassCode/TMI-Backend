@@ -1,13 +1,13 @@
-import "reflect-metadata";
-import express, { Express, Router } from "express";
-import cors from "cors";
-import * as dotenv from "dotenv";
-import config from "./Shared/config";
-import Container from "typedi";
-import { PlanRouter } from "./api/index";
-import NoteRouter from "./api/note.routes";
-import { errorHandler } from "./middleware/errorHandler";
-import { wrapAsyncRoutes } from "./util/wraAsyncRoutes";
+import 'reflect-metadata';
+import express, { Express, Router } from 'express';
+import cors from 'cors';
+import * as dotenv from 'dotenv';
+import config from './Shared/config';
+import Container from 'typedi';
+import { PlanRouter } from './api/index';
+import NoteRouter from './api/note.routes';
+import { errorHandler } from './middleware/errorHandler';
+import { wrapAsyncRoutes } from './util/wraAsyncRoutes';
 
 class App {
   private app: Express;
@@ -30,14 +30,14 @@ class App {
   }
 
   setRoutes() {
-    this.app.use("/", this.router);
+    this.app.use('/', this.router);
     Container.get(PlanRouter).SetRouter(this.router);
     Container.get(NoteRouter).SetRouter(this.router);
 
-    wrapAsyncRoutes(this.router)
+    wrapAsyncRoutes(this.router);
   }
 
-  setErrorHandler(){
+  setErrorHandler() {
     this.app.use(errorHandler);
   }
 

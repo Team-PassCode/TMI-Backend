@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import { z } from "zod";
-import { validateRequest } from "../middleware/validateRequest";
-import { BasePlanSchema } from "./BasePlanSchema";
+import { NextFunction, Request, Response } from 'express';
+import { z } from 'zod';
+import { validateRequest } from '../middleware/validateRequest';
+import { BasePlanSchema } from './BasePlanSchema';
 
 const VerifyEndTime = (startTime: number, endTime: number) => {
   return new Date(endTime) >= new Date(startTime);
@@ -13,13 +13,13 @@ const verifyStartTime = (startTime: number) => {
 const CreatePlanSchema = BasePlanSchema.refine(
   (data) => verifyStartTime(data.startTime),
   {
-    message: "Put a valid Start Time.",
-    path: ["startTime"],
+    message: 'Put a valid Start Time.',
+    path: ['startTime'],
   }
 )
   .refine((data) => VerifyEndTime(data.startTime, data.endTime), {
-    message: "End Time must be after start time.",
-    path: ["endTime"],
+    message: 'End Time must be after start time.',
+    path: ['endTime'],
   })
   .refine(
     (data) =>
@@ -30,7 +30,7 @@ const CreatePlanSchema = BasePlanSchema.refine(
         : true,
     {
       message: "Each break's end time must be after its start time.",
-      path: ["breaks"],
+      path: ['breaks'],
     }
   )
   .refine(
@@ -39,8 +39,8 @@ const CreatePlanSchema = BasePlanSchema.refine(
         ? data.breaks.every((breakTime) => verifyStartTime(breakTime.startTime))
         : true,
     {
-      message: "Put a Valid Break Start Time",
-      path: ["breaks"],
+      message: 'Put a Valid Break Start Time',
+      path: ['breaks'],
     }
   )
   .refine(
@@ -55,7 +55,7 @@ const CreatePlanSchema = BasePlanSchema.refine(
     {
       message:
         "Break times must fall within the plan's Start Time and End Time.",
-      path: ["breaks"],
+      path: ['breaks'],
     }
   );
 

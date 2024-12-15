@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { String } from "./ScemaValidation";
+import { z } from 'zod';
+import { String } from './ScemaValidation';
 
 const TimeSchema = (fieldName: string) =>
   z.number({
@@ -8,10 +8,10 @@ const TimeSchema = (fieldName: string) =>
   });
 
 const BasePlanSchema = z.object({
-  title: String("Title", true),
-  description: String("Description", true),
-  startTime: TimeSchema("Start Time"),
-  endTime: TimeSchema("End Time"),
+  title: String('Title', true),
+  description: String('Description', true),
+  startTime: TimeSchema('Start Time'),
+  endTime: TimeSchema('End Time'),
   planReferences: z
     .array(
       z.object({
@@ -23,8 +23,8 @@ const BasePlanSchema = z.object({
   breaks: z
     .array(
       z.object({
-        startTime: TimeSchema("Break Start Time"),
-        endTime: TimeSchema("Break End Time"),
+        startTime: TimeSchema('Break Start Time'),
+        endTime: TimeSchema('Break End Time'),
       })
     )
     .optional(),

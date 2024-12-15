@@ -1,9 +1,9 @@
-import { Service } from "typedi";
-import { Request, Response } from "express";
-import { GenerateUUID } from "../lib/commonFunctions";
-import NoteDatabaseAccessLayer from "../DatabaseAccessLayer/note.dal";
-import { UpdateNoteRequestModel } from "../Model/UpdateNoteRequestModel";
-import { CreateNoteType } from "../schema/CreateNote";
+import { Service } from 'typedi';
+import { Request, Response } from 'express';
+import { GenerateUUID } from '../lib/commonFunctions';
+import NoteDatabaseAccessLayer from '../DatabaseAccessLayer/note.dal';
+import { UpdateNoteRequestModel } from '../Model/UpdateNoteRequestModel';
+import { CreateNoteType } from '../schema/CreateNote';
 
 @Service()
 export default class NoteService {
@@ -19,16 +19,17 @@ export default class NoteService {
 
     const planExists = await this.noteDA.FindById(planId);
     if (!planExists || Object.keys(planExists).length === 0) {
-      response.status(400).send([{ message: "PlanId does not exist." }]);
+      response.status(400).send([{ message: 'PlanId does not exist.' }]);
       return;
     }
+
     const noteId = GenerateUUID();
 
-    await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? "");
+    await this.noteDA.SaveNotes(noteId, planId, notes, userid ?? '');
     response.status(200).send({
       noteId,
     });
-}
+  };
 
   UpdateNote = async (
     request: Request<{}, {}, UpdateNoteRequestModel>,
@@ -47,7 +48,7 @@ export default class NoteService {
 
     const validNoteId = await this.noteDA.FindByNoteId(noteId);
     if (!validNoteId || Object.keys(validNoteId).length === 0) {
-      response.status(400).send([{ message: "note id does not exist." }]);
+      response.status(400).send([{ message: 'note id does not exist.' }]);
       return;
     }
 

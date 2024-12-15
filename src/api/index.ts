@@ -1,3 +1,3 @@
-import PlanRouter from "./plan.routes";
+import PlanRouter from './plan.routes';
 
 export { PlanRouter };

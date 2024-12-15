@@ -1,4 +1,4 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 class Config {
@@ -7,9 +7,9 @@ class Config {
     //     process.env.ENVIORONMENT == "dev"
     //         ? "http://localhost:4200"
     //         : process.env.APPLICATION_URL,
-    origin: "*",
+    origin: '*',
     optionsSuccessStatus: 200,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   };
 }
 
