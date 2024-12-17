@@ -150,6 +150,23 @@ export default class PlanService {
       planStartTime,
     } = this.PrepareCreateAndUpdateData(request.body);
 
+    const overlappedPlansFound = await this.planDA.FindMeetingOverlap(
+      planStartTime,
+      planEndTime
+    );
+
+    if (
+      Array.isArray(overlappedPlansFound) &&
+      overlappedPlansFound.length > 0
+    ) {
+      response.status(400).send([
+        {
+          message: 'A plan is already scheduled in the same window',
+        },
+      ]);
+      return;
+    }
+
     await this.planDA.CreatePlan(
       planId,
       userid ?? '',
@@ -186,6 +203,24 @@ export default class PlanService {
       planReferencesToBeSaved,
       planStartTime,
     } = this.PrepareCreateAndUpdateData(request.body);
+
+    const overlappedPlansFound = await this.planDA.FindMeetingOverlapForUpdate(
+      planId,
+      planStartTime,
+      planEndTime
+    );
+
+    if (
+      Array.isArray(overlappedPlansFound) &&
+      overlappedPlansFound.length > 0
+    ) {
+      response.status(400).send([
+        {
+          message: 'A plan is already scheduled in the same window',
+        },
+      ]);
+      return;
+    }
 
     await this.planDA.UpdatePlan(
       planId,

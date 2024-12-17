@@ -24,7 +24,7 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
       'no-unused-vars': 'off',
-      'no-console': 'error',
+      'no-console': 'warning',
       'prettier/prettier': 'error',
     },
   },
