@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { Service } from 'typedi';
 // import { VerifyUser } from "../middleware/verifyUser";
 import NoteService from '../service/note.service';
 import { ValidateCreateNote } from '../schema/CreateNote';
+import { Controller } from '../decorator/controller';
 
-@Service()
+@Controller()
 export default class NoteRouter {
   constructor(private readonly noteService: NoteService) {}
 

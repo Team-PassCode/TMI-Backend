@@ -4,6 +4,7 @@ import cors from 'cors';
 import * as dotenv from 'dotenv';
 import config from './Shared/config';
 import Container from 'typedi';
+import { registerControllers } from './util/registerControllers';
 import { PlanRouter } from './api/index';
 import NoteRouter from './api/note.routes';
 import { errorHandler } from './middleware/errorHandler';
@@ -27,13 +28,14 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     dotenv.config();
+    this.app.use(this.router);
   }
 
   setRoutes() {
     this.app.use('/', this.router);
     Container.get(PlanRouter).SetRouter(this.router);
-    Container.get(NoteRouter).SetRouter(this.router);
-
+    // Container.get(NoteRouter).SetRouter(this.router);
+    registerControllers(this.router, [NoteRouter]);
     wrapAsyncRoutes(this.router);
   }
 
@@ -44,7 +46,7 @@ class App {
   startApp() {
     const port = process.env.APP_PORT || 3001;
     this.app.listen(port, () => {
-      console.log(`Project running on ${port}`);
+      // console.log(`Project running on ${port}`);
     });
   }
 }
