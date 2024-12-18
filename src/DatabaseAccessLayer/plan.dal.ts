@@ -57,36 +57,51 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
   }
 
   async GetPlanDetails(planId: string) {
-    try {
-      return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
-        DBsp.GetPlanDetails,
-        [planId]
-      );
-    } catch (error) {
-      throw error;
-    }
+    return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
+      DBsp.GetPlanDetails,
+      [planId]
+    );
   }
 
   async GetPlansOfSpecifiedDate(date: Date, userId: string) {
-    try {
-      return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
-        DBsp.GetPlansOfADate,
-        [date, userId]
-      );
-    } catch (error) {
-      throw error;
-    }
+    return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
+      DBsp.GetPlansOfADate,
+      [date, userId]
+    );
   }
 
   async GetPlanList(userId: string) {
-    try {
-      return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
-        DBsp.GetPlanList,
-        [userId]
-      );
-    } catch (error) {
-      throw error;
-    }
+    return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
+      DBsp.GetPlanList,
+      [userId]
+    );
+  }
+
+  async FindMeetingOverlap(startTime: Date, endTime: Date) {
+    return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlap, [
+      startTime,
+      endTime,
+      startTime,
+      endTime,
+      startTime,
+      endTime,
+    ]);
+  }
+
+  async FindMeetingOverlapForUpdate(
+    planId: string,
+    startTime: Date,
+    endTime: Date
+  ) {
+    return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapForUpdate, [
+      planId,
+      startTime,
+      endTime,
+      startTime,
+      endTime,
+      startTime,
+      endTime,
+    ]);
   }
 
   async CreatePlan(
@@ -100,38 +115,34 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     planReference: PlanReference[],
     breaks: Break[]
   ) {
-    try {
-      let queryList = [];
-      let paramsList = [];
-      queryList.push(DBqueries.CreatePlan);
+    let queryList = [];
+    let paramsList = [];
+    queryList.push(DBqueries.CreatePlan);
+    paramsList.push([
+      planId,
+      userId,
+      title,
+      description,
+      startTime,
+      endTime,
+      createdBy,
+    ]);
+    breaks.forEach(({ startTime, endTime }) => {
+      queryList.push(DBqueries.CreatePlanBreak);
+      paramsList.push([planId, startTime, endTime, createdBy]);
+    });
+    planReference.forEach(({ planReferenceId, hyperLink, description }) => {
+      queryList.push(DBqueries.CreatePlanReference);
       paramsList.push([
+        planReferenceId,
         planId,
-        userId,
-        title,
+        hyperLink,
         description,
-        startTime,
-        endTime,
         createdBy,
       ]);
-      breaks.forEach(({ startTime, endTime }) => {
-        queryList.push(DBqueries.CreatePlanBreak);
-        paramsList.push([planId, startTime, endTime, createdBy]);
-      });
-      planReference.forEach(({ planReferenceId, hyperLink, description }) => {
-        queryList.push(DBqueries.CreatePlanReference);
-        paramsList.push([
-          planReferenceId,
-          planId,
-          hyperLink,
-          description,
-          createdBy,
-        ]);
-      });
+    });
 
-      await this.InsertOrUpdateDB(queryList, paramsList);
-    } catch (error) {
-      throw error;
-    }
+    await this.InsertOrUpdateDB(queryList, paramsList);
   }
 
   async UpdatePlan(
@@ -144,44 +155,40 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     planReference: PlanReference[],
     breaks: Break[]
   ) {
-    try {
-      let queryList = [];
-      let paramsList = [];
+    let queryList = [];
+    let paramsList = [];
 
-      queryList.push(DBqueries.UpdatePlan);
+    queryList.push(DBqueries.UpdatePlan);
+    paramsList.push([
+      title,
+      description,
+      startTime,
+      endTime,
+      updatedBy,
+      planId,
+    ]);
+
+    queryList.push(DBqueries.DeleteAllPlanBreaks);
+    paramsList.push([planId]);
+    breaks.forEach(({ startTime, endTime }) => {
+      queryList.push(DBqueries.CreatePlanBreak);
+      paramsList.push([planId, startTime, endTime, updatedBy]);
+    });
+
+    queryList.push(DBqueries.DeleteAllPlanReferences);
+    paramsList.push([planId]);
+    planReference.forEach(({ planReferenceId, hyperLink, description }) => {
+      queryList.push(DBqueries.CreatePlanReference);
       paramsList.push([
-        title,
-        description,
-        startTime,
-        endTime,
-        updatedBy,
+        planReferenceId,
         planId,
+        hyperLink,
+        description,
+        updatedBy,
       ]);
+    });
 
-      queryList.push(DBqueries.DeleteAllPlanBreaks);
-      paramsList.push([planId]);
-      breaks.forEach(({ startTime, endTime }) => {
-        queryList.push(DBqueries.CreatePlanBreak);
-        paramsList.push([planId, startTime, endTime, updatedBy]);
-      });
-
-      queryList.push(DBqueries.DeleteAllPlanReferences);
-      paramsList.push([planId]);
-      planReference.forEach(({ planReferenceId, hyperLink, description }) => {
-        queryList.push(DBqueries.CreatePlanReference);
-        paramsList.push([
-          planReferenceId,
-          planId,
-          hyperLink,
-          description,
-          updatedBy,
-        ]);
-      });
-
-      await this.InsertOrUpdateDB(queryList, paramsList);
-    } catch (error) {
-      throw error;
-    }
+    await this.InsertOrUpdateDB(queryList, paramsList);
   }
 
   async DeletePlan(planId: string) {

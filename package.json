@@ -30,6 +30,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/express-fileupload": "^1.5.1",
+    "@types/express-serve-static-core": "^5.0.2",
     "@types/multer": "^1.4.12",
     "@types/shortid": "^0.0.32",
     "@types/uuid": "^10.0.0",
@@ -61,7 +62,7 @@
     "joi": "^17.13.3",
     "mysql2": "^3.11.3",
     "reflect-metadata": "^0.2.2",
-    "shortid": "^2.2.16",
+    "shortid": "^2.2.8",
     "typedi": "^0.10.0",
     "uuid": "^10.0.0",
     "zod": "^3.23.8"
