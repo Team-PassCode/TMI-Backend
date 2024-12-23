@@ -3,10 +3,9 @@ import express, { Express, Router } from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
 import config from './Shared/config';
-import Container from 'typedi';
 import { registerControllers } from './util/registerControllers';
-import { PlanRouter } from './api/index';
-import NoteRouter from './api/note.routes';
+import './api/index';
+import './api/note.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { wrapAsyncRoutes } from './util/wraAsyncRoutes';
 
@@ -33,9 +32,8 @@ class App {
 
   setRoutes() {
     this.app.use('/', this.router);
-    Container.get(PlanRouter).SetRouter(this.router);
-    // Container.get(NoteRouter).SetRouter(this.router);
-    registerControllers(this.router, [NoteRouter]);
+    registerControllers(this.router);
+
     wrapAsyncRoutes(this.router);
   }
 

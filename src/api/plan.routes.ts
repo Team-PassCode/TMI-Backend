@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { Service } from 'typedi';
 // import { VerifyUser } from "../middleware/verifyUser";
 import PlanService from '../service/plan.service';
 import { ValidateCreatePlan } from '../schema/CreatePlan';
 import { ValidateUpdatePlan } from '../schema/UpdatePlan';
+import { Controller } from '../decorator/controller';
 
-@Service()
+@Controller()
 export default class PlanRouter {
   constructor(private readonly planService: PlanService) {}
 
