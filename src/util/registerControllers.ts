@@ -2,8 +2,11 @@ import { Router } from 'express';
 import { Container } from 'typedi';
 import { getMetadataArgsStorage } from './getMetadata';
 
-export const registerControllers = (router: Router, controllers: any[]) => {
-  controllers.forEach((ControllerClass) => {
+export const registerControllers = (router: Router) => {
+  const registerControllers =
+    Reflect.getMetadata('registered_controllers', Reflect) || [];
+
+  registerControllers.forEach((ControllerClass: any) => {
     const instance: InstanceType<typeof ControllerClass> =
       Container.get(ControllerClass);
     const metadataStorage = getMetadataArgsStorage();
