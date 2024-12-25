@@ -44,7 +44,7 @@ class App {
   startApp() {
     const port = process.env.APP_PORT || 3001;
     this.app.listen(port, () => {
-      // console.log(`Project running on ${port}`);
+      console.log(`Project running on ${port}`);
     });
   }
 }
