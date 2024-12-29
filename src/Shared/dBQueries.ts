@@ -19,9 +19,13 @@ export const DBqueries = {
   FindById: 'SELECT * FROM tbl_Plan WHERE Plan_Id = ?',
   FindByNoteId: 'SELECT * FROM tbl_Note WHERE Note_Id = ?',
   FindMeetingOverlap:
-    'SELECT * FROM tbl_Plan WHERE ((Start_Time BETWEEN ? AND ?) OR (End_Time BETWEEN ? AND ?) OR (? BETWEEN Start_Time AND End_Time) OR (? BETWEEN Start_Time AND End_Time)); ',
+    'SELECT * FROM tbl_Plan WHERE ((Start_Time BETWEEN ? AND ?) OR (End_Time BETWEEN ? AND ?) OR (? BETWEEN Start_Time AND End_Time) OR (? BETWEEN Start_Time AND End_Time));',
+  FindMeetingOverlapV2:
+    'SELECT * FROM tbl_Plan WHERE (Start_Time < ? AND End_Time > ?)',
   FindMeetingOverlapForUpdate:
-    'SELECT * FROM tbl_Plan WHERE Plan_Id != ? AND ((Start_Time BETWEEN ? AND ?) OR (End_Time BETWEEN ? AND ?) OR (? BETWEEN Start_Time AND End_Time) OR (? BETWEEN Start_Time AND End_Time));',
+    'SELECT * FROM tbl_Plan WHERE Plan_Id != ? AND (Start_Time < ? AND End_Time > ?)',
+  FindMeetingOverlapForUpdateV2:
+    'SELECT * FROM tbl_Plan WHERE Plan_Id != ? AND (Start_Time < ? AND End_Time > ?)',
 };
 
 export const DBsp = {

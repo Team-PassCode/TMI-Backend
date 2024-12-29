@@ -78,13 +78,18 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
   }
 
   async FindMeetingOverlap(startTime: Date, endTime: Date) {
-    return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlap, [
-      startTime,
+    // return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlap, [
+    //   startTime,
+    //   endTime,
+    //   startTime,
+    //   endTime,
+    //   startTime,
+    //   endTime,
+    // ]);
+    console.log(startTime.toLocaleString(), endTime.toLocaleString());
+    return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapV2, [
       endTime,
       startTime,
-      endTime,
-      startTime,
-      endTime,
     ]);
   }
 
@@ -93,12 +98,17 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     startTime: Date,
     endTime: Date
   ) {
-    return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapForUpdate, [
+    // return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapForUpdate, [
+    //   planId,
+    //   startTime,
+    //   endTime,
+    //   startTime,
+    //   endTime,
+    //   startTime,
+    //   endTime,
+    // ]);
+    return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapForUpdateV2, [
       planId,
-      startTime,
-      endTime,
-      startTime,
-      endTime,
       startTime,
       endTime,
     ]);
