@@ -3,20 +3,15 @@ import { Container } from 'typedi';
 import { getMetadataArgsStorage } from './getMetadata';
 
 export const registerControllers = (router: Router) => {
-  const registerControllers =
-    Reflect.getMetadata('registered_controllers', Reflect) || [];
+  const metadataStorage = getMetadataArgsStorage();
 
-  registerControllers.forEach((ControllerClass: any) => {
-    const instance: InstanceType<typeof ControllerClass> =
-      Container.get(ControllerClass);
-    const metadataStorage = getMetadataArgsStorage();
-    const controllerMetadata = metadataStorage.controllers.find(
-      (controller) => controller.target === ControllerClass
-    );
+  metadataStorage.controllers.forEach(({ target, baseRoute }) => {
+    const instance: InstanceType<typeof target> = Container.get(target);
 
-    if (controllerMetadata) {
-      const { baseRoute } = controllerMetadata;
-      instance.SetRouter(router, baseRoute);
+    if (baseRoute) {
+      const baseRouter = Router();
+      instance.SetRouter(baseRouter);
+      router.use(baseRoute, baseRouter);
     }
   });
 };
