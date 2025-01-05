@@ -5,16 +5,16 @@ import { ValidateCreatePlan } from '../schema/CreatePlan';
 import { ValidateUpdatePlan } from '../schema/UpdatePlan';
 import { Controller } from '../decorator/controller';
 
-@Controller()
+@Controller('/plan')
 export default class PlanRouter {
   constructor(private readonly planService: PlanService) {}
 
   SetRouter(router: Router) {
-    router.get('/plan/:planid', this.planService.GetPlanDetails);
-    router.get('/plan/date/:date', this.planService.GetPlansOfSpecifiedDate);
-    router.get('/plan', this.planService.GetPlanList);
-    router.post('/plan', ValidateCreatePlan, this.planService.CreatePlan);
-    router.put('/plan', ValidateUpdatePlan, this.planService.UpdatePlan);
-    router.delete('/plan/:planid', this.planService.DeletePlan);
+    router.get('/:planid', this.planService.GetPlanDetails);
+    router.get('/date/:date', this.planService.GetPlansOfSpecifiedDate);
+    router.get('/', this.planService.GetPlanList);
+    router.post('/', ValidateCreatePlan, this.planService.CreatePlan);
+    router.put('/', ValidateUpdatePlan, this.planService.UpdatePlan);
+    router.delete('/:planid', this.planService.DeletePlan);
   }
 }

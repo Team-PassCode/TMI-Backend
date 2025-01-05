@@ -1,3 +1,6 @@
 export class MetadataArgsStorage {
-  controllers: { target: Function; baseRoute: string | undefined }[] = [];
+  controllers: {
+    target: new (...args: any[]) => any;
+    baseRoute: string | undefined;
+  }[] = [];
 }
