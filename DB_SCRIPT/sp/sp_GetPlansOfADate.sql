@@ -1,5 +1,6 @@
 DROP PROCEDURE IF EXISTS sp_GetPlansOfADate;
-DELIMITER &&  
+DELIMITER &&
+
 CREATE PROCEDURE sp_GetPlansOfADate(specificDate DATE, userId VARCHAR(40))
 BEGIN
 
@@ -13,8 +14,13 @@ BEGIN
     FROM 
         tbl_Plan Plan
     WHERE 
-        Plan.Start_Time >= @end_datetime
-        AND Plan.End_Time <= @start_datetime
+        (
+            (Plan.Start_Time >= @start_datetime AND Plan.Start_Time <= @end_datetime)  -- Plans starting on the specific date
+            OR
+            (Plan.End_Time >= @start_datetime AND Plan.End_Time <= @end_datetime)    -- Plans ending on the specific date
+            OR
+            (Plan.Start_Time < @start_datetime AND Plan.End_Time >= @end_datetime)   -- Plans spanning across the specific date
+        )
         AND Plan.User_Id = userId;
     
     -- Fetch data from tbl_Plan_Reference
@@ -24,8 +30,13 @@ BEGIN
         tbl_Plan Plan
         INNER JOIN tbl_Plan_Reference PlanReference ON Plan.Plan_Id = PlanReference.Plan_Id
     WHERE
-        Plan.Start_Time >= @end_datetime
-        AND Plan.End_Time <= @start_datetime
+        (
+            (Plan.Start_Time >= @start_datetime AND Plan.Start_Time <= @end_datetime)
+            OR
+            (Plan.End_Time >= @start_datetime AND Plan.End_Time <= @end_datetime)
+            OR
+            (Plan.Start_Time < @start_datetime AND Plan.End_Time >= @end_datetime)
+        )
         AND Plan.User_Id = userId;
 
     -- Fetch data from tbl_Plan_Break
@@ -35,8 +46,13 @@ BEGIN
         tbl_Plan Plan
         INNER JOIN tbl_Plan_Break PlanBreak ON Plan.Plan_Id = PlanBreak.Plan_Id
     WHERE
-        Plan.Start_Time >= @end_datetime
-        AND Plan.End_Time <= @start_datetime
+        (
+            (Plan.Start_Time >= @start_datetime AND Plan.Start_Time <= @end_datetime)
+            OR
+            (Plan.End_Time >= @start_datetime AND Plan.End_Time <= @end_datetime)
+            OR
+            (Plan.Start_Time < @start_datetime AND Plan.End_Time >= @end_datetime)
+        )
         AND Plan.User_Id = userId;
 
     -- Fetch data from tbl_Note
@@ -46,9 +62,15 @@ BEGIN
         tbl_Plan Plan
         INNER JOIN tbl_Note Note ON Plan.Plan_Id = Note.Plan_Id
     WHERE
-        Plan.Start_Time >= @end_datetime
-        AND Plan.End_Time <= @start_datetime
+        (
+            (Plan.Start_Time >= @start_datetime AND Plan.Start_Time <= @end_datetime)
+            OR
+            (Plan.End_Time >= @start_datetime AND Plan.End_Time <= @end_datetime)
+            OR
+            (Plan.Start_Time < @start_datetime AND Plan.End_Time >= @end_datetime)
+        )
         AND Plan.User_Id = userId;
 
 END &&
+
 DELIMITER ;
