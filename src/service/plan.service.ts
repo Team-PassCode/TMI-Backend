@@ -25,7 +25,9 @@ export default class PlanService {
       userid,
     } = req;
 
-    const [plans, planReferences] = await this.planDA.GetPlanDetails(planid);
+    const [plans, planReferences] = (await this.planDA.GetPlanDetails(
+      planid
+    )) as any;
     if (Array.isArray(plans) && plans.length > 0)
       plans[0]['PlanReferences'] = planReferences;
 
