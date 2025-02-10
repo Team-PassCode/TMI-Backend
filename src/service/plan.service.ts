@@ -4,6 +4,7 @@ import PlanDA, {
   PlanBreakD,
   PlanD,
   PlanReferenceD,
+  PlanReviewD,
 } from '../DatabaseAccessLayer/plan.dal';
 import { Request, Response } from 'express';
 import { GenerateUUID } from '../lib/commonFunctions';
@@ -14,6 +15,7 @@ import { Note } from '../Model/Note';
 import { BreakResponseModel } from '../Model/BreakResponseModel';
 import { CreatePlanType } from '../schema/CreatePlan';
 import { UpdatePlanType } from '../schema/UpdatePlan';
+import { CreatePlanReviewType } from '../schema/CreatePlanReview';
 
 @Service()
 export default class PlanService {
@@ -57,13 +59,14 @@ export default class PlanService {
 
   GetPlanList = async (req: Request, res: Response) => {
     const { userid } = req;
-    const [plans, planReferences, planBreaks, notes] =
+    const [plans, planReferences, planBreaks, notes, planReviews] =
       await this.planDA.GetPlanList(userid ?? '');
     const plansWithPlanReferences = this.GetPlan(
       plans,
       planReferences,
       planBreaks,
-      notes
+      notes,
+      planReviews
     );
     res.status(200).send(plansWithPlanReferences);
   };
@@ -72,7 +75,8 @@ export default class PlanService {
     plans: PlanD[],
     planReferences: PlanReferenceD[],
     planBreaks: PlanBreakD[],
-    notes: NoteD[]
+    notes: NoteD[],
+    planReviews: PlanReviewD[] = []
   ) => {
     if (Array.isArray(plans)) {
       if (Array.isArray(plans)) {
@@ -92,6 +96,8 @@ export default class PlanService {
               planBreaks?.filter((pb) => pb.Plan_Id === Plan_Id) ?? [];
             const notesOfThisPlan =
               notes?.filter((note) => note.Plan_Id === Plan_Id) ?? [];
+            const planReviewsOfThisPlan =
+              planReviews?.filter((pr) => pr.Plan_Id === Plan_Id) ?? [];
 
             return {
               planId: Plan_Id,
@@ -127,6 +133,14 @@ export default class PlanService {
                   };
                 }
               ),
+              review:
+                planReviewsOfThisPlan.length > 0
+                  ? {
+                      percentage: planReviewsOfThisPlan[0].Percentage,
+                      reviewId: planReviewsOfThisPlan[0].Review_Id,
+                      createdOn: planReviewsOfThisPlan[0].Created_On.getTime(),
+                    }
+                  : null,
             };
           }
         );
@@ -287,5 +301,50 @@ export default class PlanService {
     const { planid } = request.params;
     await this.planDA.DeletePlan(planid);
     response.status(200).send();
+  };
+
+  SavePlanReview = async (
+    request: Request<{}, {}, CreatePlanReviewType>,
+    response: Response
+  ) => {
+    const { planId, percentage } = request.body;
+    const { userid } = request;
+    const review = await this.planDA.GetPlanReview(planId);
+    if (Array.isArray(review) && review.length > 0) {
+      let editCount = review[0].Edit_Count;
+      const reviewId = review[0].Review_Id;
+      if (editCount === 3) {
+        response.status(400).send([
+          {
+            message: 'Review can be edited only 3 times',
+          },
+        ]);
+        return;
+      }
+      await this.planDA.UpdatePlanReview(
+        planId,
+        percentage,
+        userid ?? '',
+        ++editCount
+      );
+      response.status(200).send({
+        reviewId,
+        percentage,
+        editCount,
+      });
+      return;
+    }
+    const generatedReviewId = GenerateUUID();
+    await this.planDA.InsertPlanReview(
+      planId,
+      generatedReviewId,
+      percentage,
+      userid ?? ''
+    );
+    response.status(200).send({
+      reviewId: generatedReviewId,
+      percentage,
+      editCount: 1,
+    });
   };
 }

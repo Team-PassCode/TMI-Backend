@@ -4,6 +4,7 @@ import PlanService from '../service/plan.service';
 import { ValidateCreatePlan } from '../schema/CreatePlan';
 import { ValidateUpdatePlan } from '../schema/UpdatePlan';
 import { Controller } from '../decorator/controller';
+import { ValidateCreatePlanReview } from '../schema/CreatePlanReview';
 
 @Controller('/plan')
 export default class PlanRouter {
@@ -16,5 +17,10 @@ export default class PlanRouter {
     router.post('/', ValidateCreatePlan, this.planService.CreatePlan);
     router.put('/', ValidateUpdatePlan, this.planService.UpdatePlan);
     router.delete('/:planid', this.planService.DeletePlan);
+    router.put(
+      '/review',
+      ValidateCreatePlanReview,
+      this.planService.SavePlanReview
+    );
   }
 }

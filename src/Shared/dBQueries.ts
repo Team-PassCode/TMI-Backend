@@ -26,6 +26,11 @@ export const DBqueries = {
     'SELECT * FROM tbl_Plan WHERE Plan_Id != ? AND (Start_Time < ? AND End_Time > ?)',
   FindMeetingOverlapForUpdateV2:
     'SELECT * FROM tbl_Plan WHERE Plan_Id != ? AND (Start_Time < ? AND End_Time > ?)',
+  InsertPlanReview:
+    'Insert Into tbl_Plan_Review(Plan_Id, Review_Id, Percentage, Created_By, Edit_Count) Values(?,?,?,?,1)',
+  GetPlanReview: 'SELECT Edit_Count FROM tbl_Plan_Review WHERE Plan_Id = ?',
+  UpdatePlanReview:
+    'Update tbl_Plan_Review SET Percentage = ?, Updated_By = ?, Edit_Count = ?, Updated_On = CURRENT_TIMESTAMP WHERE Plan_Id = ?',
 };
 
 export const DBsp = {

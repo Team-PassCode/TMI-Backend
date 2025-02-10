@@ -44,10 +44,19 @@ export interface NoteD extends RowDataPacket {
   Plan_Id: string;
   Note_Id: string;
   Notes: string;
+  Edit_Count: number;
   Created_On: Date;
   Updated_On: Date;
   Created_By: string;
   Updated_By: string;
+}
+
+export interface PlanReviewD extends RowDataPacket {
+  Plan_Id: string;
+  Review_Id: string;
+  Percentage: number;
+  Created_On: Date;
+  Created_By: string;
 }
 
 @Service()
@@ -57,24 +66,21 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
   }
 
   async GetPlanDetails(planId: string) {
-    return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
-      DBsp.GetPlanDetails,
-      [planId]
-    );
+    return this.ReadDB<
+      [PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[], PlanReviewD[]]
+    >(DBsp.GetPlanDetails, [planId]);
   }
 
   async GetPlansOfSpecifiedDate(date: Date, userId: string) {
-    return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
-      DBsp.GetPlansOfADate,
-      [date, userId]
-    );
+    return this.ReadDB<
+      [PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[], PlanReviewD[]]
+    >(DBsp.GetPlansOfADate, [date, userId]);
   }
 
   async GetPlanList(userId: string) {
-    return this.ReadDB<[PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[]]>(
-      DBsp.GetPlanList,
-      [userId]
-    );
+    return this.ReadDB<
+      [PlanD[], PlanReferenceD[], PlanBreakD[], NoteD[], PlanReviewD[]]
+    >(DBsp.GetPlanList, [userId]);
   }
 
   async FindMeetingOverlap(startTime: Date, endTime: Date) {
@@ -208,5 +214,39 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     queryList.push(DBsp.DeletePlan);
     paramsList.push([planId]);
     await this.InsertOrUpdateDB(queryList, paramsList);
+  }
+
+  async InsertPlanReview(
+    planId: string,
+    reviewId: string,
+    percentage: number,
+    createdBy: string
+  ) {
+    let queryList = [];
+    let paramsList = [];
+
+    queryList.push(DBqueries.InsertPlanReview);
+    paramsList.push([planId, reviewId, percentage, createdBy]);
+
+    await this.InsertOrUpdateDB(queryList, paramsList);
+  }
+
+  async UpdatePlanReview(
+    planId: string,
+    percentage: number,
+    updatedBy: string,
+    editCount: number
+  ) {
+    let queryList = [];
+    let paramsList = [];
+
+    queryList.push(DBqueries.UpdatePlanReview);
+    paramsList.push([percentage, updatedBy, editCount, planId]);
+
+    await this.InsertOrUpdateDB(queryList, paramsList);
+  }
+
+  async GetPlanReview(planId: string) {
+    return await this.ReadDB<PlanReviewD>(DBqueries.GetPlanReview, [planId]);
   }
 }

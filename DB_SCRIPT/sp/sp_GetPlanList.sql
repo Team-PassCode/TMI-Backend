@@ -34,5 +34,13 @@ BEGIN
         INNER JOIN tbl_Note Note ON Plan.Plan_Id = Note.Plan_Id
     WHERE
         Plan.User_Id = userId;
+
+    SELECT
+        Review.*
+    FROM
+		tbl_Plan Plan
+        INNER JOIN tbl_Plan_Review Review ON Plan.Plan_Id = Review.Plan_Id
+    WHERE
+        Plan.User_Id = userId;
 END &&
 DELIMITER ;
