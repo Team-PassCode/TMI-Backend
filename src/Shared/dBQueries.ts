@@ -31,6 +31,8 @@ export const DBqueries = {
   GetPlanReview: 'SELECT Edit_Count FROM tbl_Plan_Review WHERE Plan_Id = ?',
   UpdatePlanReview:
     'Update tbl_Plan_Review SET Percentage = ?, Updated_By = ?, Edit_Count = ?, Updated_On = CURRENT_TIMESTAMP WHERE Plan_Id = ?',
+  IsPlanEnded:
+    'SELECT * FROM tbl_Plan WHERE Plan_Id = ? AND End_Time < CURRENT_TIMESTAMP',
 };
 
 export const DBsp = {

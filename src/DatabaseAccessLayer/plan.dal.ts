@@ -247,6 +247,10 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
   }
 
   async GetPlanReview(planId: string) {
-    return await this.ReadDB<PlanReviewD>(DBqueries.GetPlanReview, [planId]);
+    return await this.ReadDB<PlanReviewD[]>(DBqueries.GetPlanReview, [planId]);
+  }
+
+  async IsPlanEnded(planId: string) {
+    return await this.ReadDB<PlanD[]>(DBqueries.IsPlanEnded, [planId]);
   }
 }

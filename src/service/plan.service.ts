@@ -309,6 +309,10 @@ export default class PlanService {
   ) => {
     const { planId, percentage } = request.body;
     const { userid } = request;
+
+    const plans = await this.planDA.IsPlanEnded(planId);
+
+    if (plans.length > 0) {
     const review = await this.planDA.GetPlanReview(planId);
     if (Array.isArray(review) && review.length > 0) {
       let editCount = review[0].Edit_Count;
@@ -345,6 +349,14 @@ export default class PlanService {
       reviewId: generatedReviewId,
       percentage,
       editCount: 1,
+      });
+    } else
+      response.status(400).send([
+        {
+          message: 'Plan is not ended',
+        },
+      ]);
+  };
     });
   };
 }
