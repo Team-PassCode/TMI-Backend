@@ -139,6 +139,7 @@ export default class PlanService {
                       percentage: planReviewsOfThisPlan[0].Percentage,
                       reviewId: planReviewsOfThisPlan[0].Review_Id,
                       createdOn: planReviewsOfThisPlan[0].Created_On.getTime(),
+                      editCount: planReviewsOfThisPlan[0].Edit_Count,
                     }
                   : null,
             };
