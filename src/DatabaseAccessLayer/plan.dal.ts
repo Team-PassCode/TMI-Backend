@@ -13,6 +13,7 @@ export interface PlanD extends RowDataPacket {
   Scheduled_On: Date;
   Start_Time: Date;
   End_Time: Date;
+  Day: string;
   Created_On: Date;
   Updated_On: Date;
   Created_By: string;
@@ -92,7 +93,6 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     //   startTime,
     //   endTime,
     // ]);
-    console.log(startTime.toLocaleString(), endTime.toLocaleString());
     return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapV2, [
       endTime,
       startTime,
@@ -127,6 +127,7 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     description: string,
     startTime: Date,
     endTime: Date,
+    day: string,
     createdBy: string,
     planReference: PlanReference[],
     breaks: Break[]
@@ -141,6 +142,7 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
       description,
       startTime,
       endTime,
+      day.toLowerCase(),
       createdBy,
     ]);
     breaks.forEach(({ startTime, endTime }) => {
@@ -167,6 +169,7 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     description: string,
     startTime: Date,
     endTime: Date,
+    day: string,
     updatedBy: string,
     planReference: PlanReference[],
     breaks: Break[]
@@ -180,6 +183,7 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
       description,
       startTime,
       endTime,
+      day.toLowerCase(),
       updatedBy,
       planId,
     ]);
@@ -252,5 +256,21 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
 
   async IsPlanEnded(planId: string) {
     return await this.ReadDB<PlanD[]>(DBqueries.IsPlanEnded, [planId]);
+  }
+
+  async GetEffectivePlan(userId: string, dayToFetch: string) {
+    return await this.ReadDB<PlanD[][]>(DBsp.GetEffectivePlan, [
+      userId ?? '',
+      dayToFetch.toLowerCase(),
+    ]);
+  }
+
+  async GetPlanByTitle(
+    query: string,
+    titles: string[],
+    startTime: Date,
+    endTime: Date
+  ) {
+    return await this.ReadDB<PlanD[]>(query, [...titles, startTime, endTime]);
   }
 }

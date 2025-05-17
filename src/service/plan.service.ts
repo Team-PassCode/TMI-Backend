@@ -16,6 +16,21 @@ import { BreakResponseModel } from '../Model/BreakResponseModel';
 import { CreatePlanType } from '../schema/CreatePlan';
 import { UpdatePlanType } from '../schema/UpdatePlan';
 import { CreatePlanReviewType } from '../schema/CreatePlanReview';
+import Levenshtein from 'levenshtein';
+import dayjs from 'dayjs';
+
+type FuzzyGroup = {
+  fuzzyTitle: string;
+  plans: Plan[];
+};
+
+type Plan = {
+  title: string;
+  startTime: Date;
+  endTime: Date;
+  createdOn: Date;
+  day: string;
+};
 
 @Service()
 export default class PlanService {
@@ -191,6 +206,9 @@ export default class PlanService {
       description,
       planStartTime,
       planEndTime,
+      planStartTime.toLocaleDateString('en-US', {
+        weekday: 'long',
+      }),
       userid ?? '',
       planReferencesToBeSaved,
       planBreaksToBeSaved
@@ -245,6 +263,9 @@ export default class PlanService {
       description,
       planStartTime,
       planEndTime,
+      planStartTime.toLocaleDateString('en-US', {
+        weekday: 'long',
+      }),
       userid ?? '',
       planReferencesToBeSaved,
       planBreaksToBeSaved
@@ -314,42 +335,42 @@ export default class PlanService {
     const plans = await this.planDA.IsPlanEnded(planId);
 
     if (plans.length > 0) {
-    const review = await this.planDA.GetPlanReview(planId);
-    if (Array.isArray(review) && review.length > 0) {
-      let editCount = review[0].Edit_Count;
-      const reviewId = review[0].Review_Id;
-      if (editCount === 3) {
-        response.status(400).send([
-          {
-            message: 'Review can be edited only 3 times',
-          },
-        ]);
+      const review = await this.planDA.GetPlanReview(planId);
+      if (Array.isArray(review) && review.length > 0) {
+        let editCount = review[0].Edit_Count;
+        const reviewId = review[0].Review_Id;
+        if (editCount === 3) {
+          response.status(400).send([
+            {
+              message: 'Review can be edited only 3 times',
+            },
+          ]);
+          return;
+        }
+        await this.planDA.UpdatePlanReview(
+          planId,
+          percentage,
+          userid ?? '',
+          ++editCount
+        );
+        response.status(200).send({
+          reviewId,
+          percentage,
+          editCount,
+        });
         return;
       }
-      await this.planDA.UpdatePlanReview(
+      const generatedReviewId = GenerateUUID();
+      await this.planDA.InsertPlanReview(
         planId,
+        generatedReviewId,
         percentage,
-        userid ?? '',
-        ++editCount
+        userid ?? ''
       );
       response.status(200).send({
-        reviewId,
+        reviewId: generatedReviewId,
         percentage,
-        editCount,
-      });
-      return;
-    }
-    const generatedReviewId = GenerateUUID();
-    await this.planDA.InsertPlanReview(
-      planId,
-      generatedReviewId,
-      percentage,
-      userid ?? ''
-    );
-    response.status(200).send({
-      reviewId: generatedReviewId,
-      percentage,
-      editCount: 1,
+        editCount: 1,
       });
     } else
       response.status(400).send([
@@ -358,6 +379,165 @@ export default class PlanService {
         },
       ]);
   };
-    });
+
+  PredictPlan = async (request: Request, response: Response) => {
+    const { userid } = request;
+    // Fuzzy threshold: max allowed character differences between titles
+    const FUZZY_THRESHOLD = 7;
+    const {
+      params: { date },
+    } = request;
+    const formattedDate = new Date(parseInt(date));
+
+    try {
+      // Step 2: Fetch plans with Review_Percentage > 67 and matching day
+      const [plansFromDB] = await this.planDA.GetEffectivePlan(
+        userid,
+        formattedDate.toLocaleDateString('en-US', { weekday: 'long' })
+      );
+
+      if (plansFromDB.length === 0) {
+        console.log('No eligible plans found.');
+        response.status(200).send({ message: 'No eligible plans found.' });
+        return;
+      }
+
+      console.log('Fetched Plans:', plansFromDB);
+
+      // Step 3: Move plans into an array with cleaned fields
+      const plans = plansFromDB.map((plan) => ({
+        title: plan.Title.trim(),
+        startTime: plan.Start_Time,
+        endTime: plan.End_Time,
+        createdOn: plan.Created_On,
+        day: plan.Day,
+      }));
+
+      console.log('Cleaned Plans:', plans);
+
+      // Step 4: Apply fuzzy matching to group similar titles
+      const fuzzyGroups: FuzzyGroup[] = []; // Stores groups of similar plans
+      const titleMap: Record<string, FuzzyGroup> = {}; // Maps seen titles to their group
+
+      for (const plan of plans) {
+        let matchedGroup: FuzzyGroup | null = null;
+
+        // Compare current plan title to each group's representative title
+        for (const groupTitle of Object.keys(titleMap)) {
+          const distance = new Levenshtein(
+            plan.title.toLowerCase(),
+            groupTitle.toLowerCase()
+          ).distance;
+          // console.log(distance);
+          if (distance <= FUZZY_THRESHOLD) {
+            matchedGroup = titleMap[groupTitle];
+            break;
+          }
+        }
+
+        if (matchedGroup) {
+          matchedGroup.plans.push(plan);
+        } else {
+          const newGroup: FuzzyGroup = {
+            fuzzyTitle: plan.title,
+            plans: [plan],
+          };
+          fuzzyGroups.push(newGroup);
+          titleMap[plan.title] = newGroup;
+        }
+      }
+
+      console.log('Fuzzy Groups:', fuzzyGroups);
+
+      // Step 5: Build unique tag using fuzzyTitle + start + end
+      const taggedPlans = fuzzyGroups.flatMap((group) =>
+        group.plans.map((plan) => ({
+          ...plan,
+          fuzzyTitle: group.fuzzyTitle,
+          tag: this.generateTag(group.fuzzyTitle, plan.startTime, plan.endTime),
+        }))
+      );
+
+      console.log('Tagged Plans:', taggedPlans);
+
+      // Step 6: Group by tag and filter those with 4+ occurrences
+      const groupedByTag: Record<string, typeof taggedPlans> = {};
+      taggedPlans.forEach((plan) => {
+        if (!groupedByTag[plan.tag]) groupedByTag[plan.tag] = [];
+        groupedByTag[plan.tag].push(plan);
+      });
+
+      console.log('Grouped by Tag:', groupedByTag);
+
+      const finalGroups = Object.values(groupedByTag).filter(
+        (group) => group.length >= 4
+      );
+
+      console.log('Final Groups:', finalGroups);
+
+      // Step 7: From each valid group, fetch 2 most recent plans by exact title
+      const finalSuggestions = [];
+
+      for (const group of finalGroups) {
+        const placeholders = group.map(() => '?').join(', ');
+        const titles = group.map((g) => g.title);
+        const { startTime, endTime } = group[0];
+
+        const query = `
+        SELECT Title, Start_Time, End_Time
+        FROM tbl_plan
+        WHERE Title IN (${placeholders})
+          AND TIME(Start_Time) = TIME(?)
+          AND TIME(End_Time) = TIME(?)
+        ORDER BY Start_Time DESC
+        LIMIT 2
+      `;
+
+        const matchingPlans = await this.planDA.GetPlanByTitle(
+          query,
+          titles,
+          startTime,
+          endTime
+        );
+
+        finalSuggestions.push(
+          ...matchingPlans.map(({ Title, Start_Time, End_Time }) => {
+            return {
+              title: Title,
+              startTime: this.mergeDateAndTime(
+                formattedDate,
+                Start_Time
+              ).getTime(),
+              endTime: this.mergeDateAndTime(formattedDate, End_Time).getTime(),
+              startTime1: this.mergeDateAndTime(formattedDate, Start_Time),
+              endTime2: this.mergeDateAndTime(formattedDate, End_Time),
+            };
+          })
+        );
+      }
+
+      // Final result
+      console.log('Suggested Plans:', finalSuggestions);
+      response.status(200).send(finalSuggestions);
+    } catch (err) {
+      console.error('Error suggesting plans:', err);
+    }
   };
+
+  generateTag(fuzzyTitle: string, startTime: Date, endTime: Date): string {
+    const start = dayjs(startTime).format('HH:mm');
+    const end = dayjs(endTime).format('HH:mm');
+    return `${start}-${end}`;
+  }
+
+  mergeDateAndTime(datePart: Date, timePart: Date): Date {
+    const merged = new Date(datePart);
+
+    merged.setHours(timePart.getHours());
+    merged.setMinutes(timePart.getMinutes());
+    merged.setSeconds(timePart.getSeconds());
+    merged.setMilliseconds(timePart.getMilliseconds());
+
+    return merged;
+  }
 }

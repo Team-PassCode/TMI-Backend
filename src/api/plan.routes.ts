@@ -22,5 +22,6 @@ export default class PlanRouter {
       ValidateCreatePlanReview,
       this.planService.SavePlanReview
     );
+    router.get('/predict/:date', this.planService.PredictPlan);
   }
 }

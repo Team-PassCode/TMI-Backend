@@ -4,6 +4,7 @@ CREATE TABLE tbl_Plan
     User_Id         VARCHAR(40)     NOT NULL,
     Title           LONGTEXT        NOT NULL,
     Description     LONGTEXT        NOT NULL,
+    Day             VARCHAR(40)     NOT NULL,
     Start_Time      DATETIME        NOT NULL,
     End_Time        DATETIME        NOT NULL,
     Created_On      DATETIME        DEFAULT CURRENT_TIMESTAMP,
