@@ -402,8 +402,6 @@ export default class PlanService {
         return;
       }
 
-      console.log('Fetched Plans:', plansFromDB);
-
       // Step 3: Move plans into an array with cleaned fields
       const plans = plansFromDB.map((plan) => ({
         title: plan.Title.trim(),
@@ -516,9 +514,13 @@ export default class PlanService {
         );
       }
 
+      const distinctFinalSuggestions = Array.from(
+        new Set(finalSuggestions.map((obj) => JSON.stringify(obj)))
+      ).map((str) => JSON.parse(str));
+
       // Final result
-      console.log('Suggested Plans:', finalSuggestions);
-      response.status(200).send(finalSuggestions);
+      console.log('Suggested Plans:', distinctFinalSuggestions);
+      response.status(200).send(distinctFinalSuggestions);
     } catch (err) {
       console.error('Error suggesting plans:', err);
     }
