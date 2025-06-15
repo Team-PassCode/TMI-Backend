@@ -54,6 +54,18 @@ async function executeSpFiles(spDir: string, connection: mysql.Connection) {
   }
 }
 
+async function executeInsertFiles(
+  insertDir: string,
+  connection: mysql.Connection
+) {
+  const insertFiles = await getSqlFiles(insertDir);
+  for (const filePath of insertFiles) {
+    const sql = fs.readFileSync(filePath, 'utf8');
+    console.log(`Executing ${filePath}...`);
+    await connection.query(sql);
+  }
+}
+
 async function executeDbObjects(baseDir: string) {
   console.log(
     process.env.DB_HOST,
@@ -66,7 +78,7 @@ async function executeDbObjects(baseDir: string) {
     host: process.env.DB_HOST, // e.g. 'localhost'
     user: process.env.DB_USER, // e.g. 'root'
     password: process.env.DB_PASSWORD, // your MySQL password
-    database: process.env.DATABASE, // target database name,
+    database: process.env.DATABASE, // target database name
     port: parseInt(process.env.SQL_PORT || '3306'), // default MySQL port
     multipleStatements: true, // Enable execution of multiple SQL statements
   });
@@ -76,17 +88,43 @@ async function executeDbObjects(baseDir: string) {
     if (!dbName) {
       throw new Error('DATABASE environment variable is missing.');
     }
-    // Execute tables first
-    const tableDir = path.join(baseDir, 'table');
-    console.log('Executing table SQL files...');
-    await executeTableFiles(tableDir, connection, dbName);
 
-    // Then execute stored procedures
-    const spDir = path.join(baseDir, 'sp');
-    console.log('Executing stored procedure SQL files...');
-    await executeSpFiles(spDir, connection);
+    // Control execution via env vars. Defaults to true if not specified.
+    const runTable = process.env.RUN_TABLE
+      ? process.env.RUN_TABLE.toLowerCase() === 'true'
+      : true;
+    const runSp = process.env.RUN_SP
+      ? process.env.RUN_SP.toLowerCase() === 'true'
+      : true;
+    const runInsert = process.env.RUN_INSERT
+      ? process.env.RUN_INSERT.toLowerCase() === 'true'
+      : true;
 
-    console.log('All database objects executed successfully.');
+    if (runTable) {
+      const tableDir = path.join(baseDir, 'table');
+      console.log('Executing table SQL files...');
+      await executeTableFiles(tableDir, connection, dbName);
+    } else {
+      console.log('Skipping table SQL files.');
+    }
+
+    if (runSp) {
+      const spDir = path.join(baseDir, 'sp');
+      console.log('Executing stored procedure SQL files...');
+      await executeSpFiles(spDir, connection);
+    } else {
+      console.log('Skipping stored procedure SQL files.');
+    }
+
+    if (runInsert) {
+      const insertDir = path.join(baseDir, 'data');
+      console.log('Executing insert SQL files...');
+      await executeInsertFiles(insertDir, connection);
+    } else {
+      console.log('Skipping insert SQL files.');
+    }
+
+    console.log('All configured database objects executed successfully.');
   } catch (error) {
     console.error('Error executing SQL files:', error);
   } finally {
