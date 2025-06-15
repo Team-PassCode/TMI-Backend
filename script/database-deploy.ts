@@ -67,6 +67,7 @@ async function executeDbObjects(baseDir: string) {
     user: process.env.DB_USER, // e.g. 'root'
     password: process.env.DB_PASSWORD, // your MySQL password
     database: process.env.DATABASE, // target database name,
+    port: parseInt(process.env.SQL_PORT || '3306'), // default MySQL port
     multipleStatements: true, // Enable execution of multiple SQL statements
   });
 
