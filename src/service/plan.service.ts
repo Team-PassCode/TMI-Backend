@@ -483,7 +483,7 @@ export default class PlanService {
 
         const query = `
         SELECT Title, Start_Time, End_Time
-        FROM tbl_plan
+        FROM tbl_Plan
         WHERE Title IN (${placeholders})
           AND TIME(Start_Time) = TIME(?)
           AND TIME(End_Time) = TIME(?)
