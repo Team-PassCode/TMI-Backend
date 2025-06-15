@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS sp_GetEffectivePlan;
-DELIMITER &&
 CREATE PROCEDURE sp_GetEffectivePlan(userId varchar(40), day varchar(40))
 BEGIN
     SELECT
@@ -15,5 +14,4 @@ BEGIN
     WHERE
         Plan.User_Id = userId
         AND Plan.Day = day;
-END &&
-DELIMITER ;
+END;

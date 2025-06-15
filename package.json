@@ -10,7 +10,8 @@
     "dev": "ts-node-dev --files src/server.ts",
     "lint": "eslint src/**/*.{ts,tsx}",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "db:execute": "ts-node ./script/database-deploy.ts"
   },
   "husky": {
     "hooks": {

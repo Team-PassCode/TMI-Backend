@@ -1,6 +1,4 @@
 DROP PROCEDURE IF EXISTS sp_GetPlansOfADate;
-DELIMITER &&
-
 CREATE PROCEDURE sp_GetPlansOfADate(specificDate DATE, userId VARCHAR(40))
 BEGIN
 
@@ -71,6 +69,4 @@ BEGIN
         )
         AND Plan.User_Id = userId;
 
-END &&
-
-DELIMITER ;
+END;

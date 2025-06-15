@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS sp_GetPlanDetails;
-DELIMITER &&  
 CREATE PROCEDURE sp_GetPlanDetails(planId varchar(40))
 BEGIN
     
@@ -32,5 +31,4 @@ BEGIN
         tbl_Note
     WHERE
         Plan_Id = planId;
-END &&
-DELIMITER ;
+END;

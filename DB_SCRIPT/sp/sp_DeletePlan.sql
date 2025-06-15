@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS sp_DeletePlan;
-DELIMITER &&
 CREATE PROCEDURE sp_DeletePlan(planId varchar(40))
 BEGIN
     
@@ -14,5 +13,4 @@ BEGIN
     DELETE FROM tbl_Plan_Break
     WHERE
     Plan_Id = planId;
-END &&
-DELIMITER ;
+END;

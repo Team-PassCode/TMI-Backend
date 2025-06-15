@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS sp_GetPlanList;
-DELIMITER &&
 CREATE PROCEDURE sp_GetPlanList(userId varchar(40))
 BEGIN
 	SELECT 
@@ -42,5 +41,4 @@ BEGIN
         INNER JOIN tbl_Plan_Review Review ON Plan.Plan_Id = Review.Plan_Id
     WHERE
         Plan.User_Id = userId;
-END &&
-DELIMITER ;
+END;
