@@ -151,7 +151,12 @@ export default class AuthService {
     const payload = { userId: user[0].User_Id, email: user[0].Email };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
-    response.status(200).json({ accessToken, refreshToken });
+    response.status(200).json({
+      userId: user[0].User_Id,
+      email: user[0].Email,
+      accessToken,
+      refreshToken,
+    });
     return;
   };
 
@@ -166,7 +171,11 @@ export default class AuthService {
       const decoded = verifyRefreshToken(refreshToken) as any;
       const payload = { userId: decoded.userId, email: decoded.email };
       const accessToken = generateAccessToken(payload);
-      response.status(200).json({ accessToken });
+      response.status(200).json({
+        userId: decoded.userId,
+        email: decoded.email,
+        accessToken,
+      });
       return;
     } catch (err) {
       response

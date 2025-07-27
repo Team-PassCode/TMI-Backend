@@ -25,7 +25,7 @@ paths:
               required: [email, password]
       responses:
         200:
-          description: Login successful, returns access and refresh tokens
+          description: Login successful, returns access and refresh tokens, userId, and email
           content:
             application/json:
               schema:
@@ -35,6 +35,11 @@ paths:
                     type: string
                   refreshToken:
                     type: string
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                    format: email
         401:
           description: Invalid credentials
   /auth/refresh-token:
@@ -53,7 +58,7 @@ paths:
               required: [refreshToken]
       responses:
         200:
-          description: New access token
+          description: New access token, userId, and email
           content:
             application/json:
               schema:
@@ -61,6 +66,11 @@ paths:
                 properties:
                   accessToken:
                     type: string
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                    format: email
         401:
           description: Invalid or expired refresh token
   /auth:
