@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv';
 import config from './Shared/config';
 import { registerControllers } from './util/registerControllers';
 import './api/index';
-import './api/note.routes';
 import { errorHandler } from './middleware/errorHandler';
 import { wrapAsyncRoutes } from './util/wraAsyncRoutes';
 

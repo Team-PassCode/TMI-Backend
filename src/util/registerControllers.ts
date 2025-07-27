@@ -10,6 +10,9 @@ export const registerControllers = (router: Router) => {
 
     if (baseRoute) {
       const baseRouter = Router();
+      console.log(
+        `Registering controller: ${target.name} at base route: ${baseRoute}`
+      );
       instance.SetRouter(baseRouter);
       router.use(baseRoute, baseRouter);
     }
