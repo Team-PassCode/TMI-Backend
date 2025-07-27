@@ -39,12 +39,14 @@ export const DBqueries = {
          ORDER BY Created_On DESC
          LIMIT 1`,
   CreateUser:
-    'INSERT INTO tbl_User (User_Id, First_Name, Last_Name, Email) VALUES (?,?,?,?)',
+    'INSERT INTO tbl_User (User_Id, First_Name, Last_Name, Email, Password) VALUES (?,?,?,?,?)',
   DoesEmailExist: 'SELECT * FROM tbl_User WHERE Email = ?',
   GetUserById:
     'SELECT User_Id, First_Name, Last_Name, Email, Created_On, Updated_On, Is_Active FROM tbl_User WHERE User_Id = ?',
   UpdateUser:
     'UPDATE tbl_User SET First_Name = ?, Last_Name = ?, Email = ?, Updated_On = CURRENT_TIMESTAMP WHERE User_Id = ?',
+  GetUserByEmail:
+    'SELECT User_Id, First_Name, Last_Name, Email, Password FROM tbl_User WHERE Email = ?',
 };
 
 export const DBsp = {

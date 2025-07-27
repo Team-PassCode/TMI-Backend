@@ -11,6 +11,7 @@ export interface AuthD extends RowDataPacket {
   Updated_On: Date;
   Is_Active: string;
   User_Id: string;
+  Password: string; // Optional, as it may not be returned in all queries
 }
 
 @Service()
@@ -23,11 +24,12 @@ export default class AuthDatabaseAccessLayer extends DbConnection {
     userId: string,
     firstName: string,
     lastName: string,
-    email: string
+    email: string,
+    hashedPassword: string
   ) {
     const result = await this.InsertOrUpdateDB(
       [DBqueries.CreateUser],
-      [[userId, firstName, lastName, email]]
+      [[userId, firstName, lastName, email, hashedPassword]]
     );
     return result;
   }
@@ -54,6 +56,13 @@ export default class AuthDatabaseAccessLayer extends DbConnection {
       [DBqueries.UpdateUser],
       [[firstName, lastName, email, userId]]
     );
+    return result;
+  }
+
+  async GetUserByEmail(email: string) {
+    const result = await this.ReadDB<AuthD[]>(DBqueries.GetUserByEmail, [
+      email,
+    ]);
     return result;
   }
 }

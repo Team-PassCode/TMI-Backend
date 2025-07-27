@@ -3,14 +3,14 @@ dotenv.config();
 
 class Config {
   public readonly corsOptions = {
-    // origin:
-    //     process.env.ENVIORONMENT == "dev"
-    //         ? "http://localhost:4200"
-    //         : process.env.APPLICATION_URL,
     origin: '*',
     optionsSuccessStatus: 200,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   };
+
+  public readonly jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
+  public readonly jwtRefreshSecret =
+    process.env.JWT_REFRESH_SECRET || 'your_jwt_refresh_secret';
 }
 
 export default new Config();

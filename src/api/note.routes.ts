@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/authenticate';
 import NoteService from '../service/note.service';
 import { ValidateCreateNote } from '../schema/CreateNote';
 import { Controller } from '../decorator/controller';
@@ -8,7 +9,12 @@ export default class NoteRouter {
   constructor(private readonly noteService: NoteService) {}
 
   SetRouter(router: Router) {
-    router.post('/', ValidateCreateNote, this.noteService.CreateNote);
-    router.delete('/:noteId', this.noteService.DeleteNote);
+    router.post(
+      '/',
+      authenticate,
+      ValidateCreateNote,
+      this.noteService.CreateNote
+    );
+    router.delete('/:noteId', authenticate, this.noteService.DeleteNote);
   }
 }

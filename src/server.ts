@@ -8,6 +8,8 @@ import './api/index';
 import { errorHandler } from './middleware/errorHandler';
 import { wrapAsyncRoutes } from './util/wraAsyncRoutes';
 
+import { swaggerUi, swaggerSpec } from './swagger';
+
 class App {
   private app: Express;
   private router: Router;
@@ -27,6 +29,9 @@ class App {
     this.app.use(express.urlencoded({ extended: true }));
     dotenv.config();
     this.app.use(this.router);
+
+    // Swagger UI setup
+    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   }
 
   setRoutes() {
