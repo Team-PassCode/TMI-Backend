@@ -1,4 +1,5 @@
-import bcrypt from 'bcryptjs';
+import { UserUtils } from '../lib/userUtils';
+import { MailService } from '../lib/mailService';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -7,42 +8,19 @@ import {
 
 import { Service } from 'typedi';
 import { Request, Response } from 'express';
-import nodemailer from 'nodemailer';
 import { GenerateUUID } from '../lib/commonFunctions';
 import AuthDatabaseAccessLayer from '../DatabaseAccessLayer/auth.dal';
 import { CreateUserType } from '../schema/CreateUser';
 
 @Service()
 export default class AuthService {
-  constructor(private readonly authDA: AuthDatabaseAccessLayer) {}
+  constructor(
+    private readonly authDA: AuthDatabaseAccessLayer,
+    private readonly mailService: MailService
+  ) {}
 
   // In-memory OTP store (email -> { otp, expiresAt })
   private otpStore = new Map<string, { otp: string; expiresAt: number }>();
-
-  private generateOTP(): string {
-    // Generates a 6-digit OTP
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-
-  private async sendOtpEmail(email: string, otp: string): Promise<void> {
-    // Configure nodemailer transport (update as needed)
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER, // your email address
-        pass: process.env.EMAIL_PASS, // your email password or app password
-      },
-    });
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Your OTP Code',
-      text: `Your OTP code is ${otp}`,
-    };
-
-    await transporter.sendMail(mailOptions);
-  }
 
   // POST: Create a new user using OTP verification.
   // If no OTP is provided, an OTP is generated and emailed.
@@ -60,11 +38,28 @@ export default class AuthService {
         response.status(400).send([{ message: 'Email already exists.' }]);
         return;
       }
-      const generatedOtp = this.generateOTP();
+      const generatedOtp = UserUtils.generateOTP();
       const expiresAt = Date.now() + 5 * 60 * 1000; // valid for 5 minutes
       this.otpStore.set(email, { otp: generatedOtp, expiresAt });
       try {
-        await this.sendOtpEmail(email, generatedOtp);
+        const html = `
+          <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 8px #f0f1f2; padding: 24px;">
+            <h2 style="color: #2d7ff9; text-align: center;">TIMA - Email Verification</h2>
+            <p style="font-size: 16px; color: #333;">Hello,</p>
+            <p style="font-size: 16px; color: #333;">Your One-Time Password (OTP) for TIMA registration is:</p>
+            <div style="text-align: center; margin: 24px 0;">
+              <span style="display: inline-block; font-size: 32px; letter-spacing: 8px; color: #2d7ff9; font-weight: bold; background: #f5f7fa; padding: 12px 32px; border-radius: 6px; border: 1px dashed #2d7ff9;">${generatedOtp}</span>
+            </div>
+            <p style="font-size: 14px; color: #666;">This OTP is valid for 5 minutes. Please do not share it with anyone.</p>
+            <p style="font-size: 14px; color: #aaa; text-align: center; margin-top: 32px;">&copy; ${new Date().getFullYear()} TIMA</p>
+          </div>
+        `;
+        await this.mailService.sendMail({
+          to: email,
+          subject: 'TIMA - Your OTP Code',
+          text: `Your OTP code is ${generatedOtp}`,
+          html,
+        });
         response.status(200).send({ message: 'OTP sent to your email.' });
       } catch (error) {
         console.error('Failed to send OTP email:', error);
@@ -88,7 +83,7 @@ export default class AuthService {
     // OTP is valid, remove it from storage and create user.
     this.otpStore.delete(email);
     // Hash password before saving
-    const hashedPassword = await bcrypt.hash(password!, 10);
+    const hashedPassword = await UserUtils.hashPassword(password!);
     const newUserId = GenerateUUID();
     await this.authDA.CreateUser(
       newUserId,
@@ -97,7 +92,11 @@ export default class AuthService {
       email,
       hashedPassword
     );
-    response.status(200).send({ userId: newUserId });
+    // Generate tokens after user creation
+    const payload = { userId: newUserId, email };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+    response.status(200).send({ userId: newUserId, accessToken, refreshToken });
   };
 
   // GET: Get user details by user id (expects userId as route parameter)
@@ -144,8 +143,7 @@ export default class AuthService {
       response.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-    const isMatch = await bcrypt.compare(password, hashedPassword);
-    console.log('Password match:', isMatch);
+    const isMatch = await UserUtils.comparePassword(password, hashedPassword);
     if (!isMatch) {
       response.status(401).json({ message: 'Invalid credentials' });
       return;
@@ -175,6 +173,21 @@ export default class AuthService {
         .status(401)
         .json({ message: 'Invalid or expired refresh token' });
       return;
+    }
+  };
+
+  // TEST ONLY: Delete user by email
+  DeleteUserByEmail = async (request: Request, response: Response) => {
+    const { email } = request.body;
+    if (!email) {
+      response.status(400).json({ message: 'Email required' });
+      return;
+    }
+    try {
+      await this.authDA.DeleteUserByEmail(email);
+      response.status(200).json({ message: 'User deleted (if existed)' });
+    } catch (err) {
+      response.status(500).json({ message: 'Error deleting user', error: err });
     }
   };
 }

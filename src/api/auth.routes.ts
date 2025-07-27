@@ -17,5 +17,8 @@ export default class AuthRouter {
     router.put('/', authenticate, this.authService.UpdateUser);
 
     router.get('/:userId', authenticate, this.authService.GetUserById);
+
+    // TEST ONLY: Delete user by email
+    router.delete('/test-delete', this.authService.DeleteUserByEmail);
   }
 }

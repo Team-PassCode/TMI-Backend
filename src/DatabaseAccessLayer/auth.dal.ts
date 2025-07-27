@@ -65,4 +65,13 @@ export default class AuthDatabaseAccessLayer extends DbConnection {
     ]);
     return result;
   }
+
+  async DeleteUserByEmail(email: string) {
+    // For testing only: delete user by email
+    const result = await this.InsertOrUpdateDB(
+      ['DELETE FROM tbl_User WHERE Email = ?'],
+      [[email]]
+    );
+    return result;
+  }
 }

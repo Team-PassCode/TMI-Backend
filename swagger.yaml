@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API documentation for TMI Backend
 servers:
-  - url: http://localhost:3001
+  - url: https://9f5c03fcdac4.ngrok-free.app
 paths:
   /auth/login:
     post:
@@ -147,3 +147,25 @@ paths:
                     format: email
         404:
           description: User not found
+  /auth/test-delete:
+    delete:
+      summary: Delete a user by email (TEST ONLY)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required: [email]
+      responses:
+        200:
+          description: User deleted (if existed)
+        400:
+          description: Email required
+        500:
+          description: Error deleting user
