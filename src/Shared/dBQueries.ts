@@ -44,7 +44,7 @@ export const DBqueries = {
   GetUserById:
     'SELECT User_Id, First_Name, Last_Name, Email, Created_On, Updated_On, Is_Active FROM tbl_User WHERE User_Id = ?',
   UpdateUser:
-    'UPDATE tbl_User SET First_Name = ?, Last_Name = ?, Email = ?, Updated_On = CURRENT_TIMESTAMP WHERE User_Id = ?',
+    'UPDATE tbl_User SET First_Name = ?, Last_Name = ?, Updated_On = CURRENT_TIMESTAMP WHERE User_Id = ?',
   GetUserByEmail:
     'SELECT User_Id, First_Name, Last_Name, Email, Password FROM tbl_User WHERE Email = ?',
 };

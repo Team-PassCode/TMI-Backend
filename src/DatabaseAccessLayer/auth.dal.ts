@@ -46,15 +46,10 @@ export default class AuthDatabaseAccessLayer extends DbConnection {
     return result;
   }
 
-  async UpdateUser(
-    userId: string,
-    firstName: string,
-    lastName: string,
-    email: string
-  ) {
+  async UpdateUser(userId: string, firstName: string, lastName: string) {
     const result = await this.InsertOrUpdateDB(
       [DBqueries.UpdateUser],
-      [[firstName, lastName, email, userId]]
+      [[firstName, lastName, userId]]
     );
     return result;
   }

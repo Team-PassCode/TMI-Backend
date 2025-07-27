@@ -101,7 +101,7 @@ export default class AuthService {
 
   // GET: Get user details by user id (expects userId as route parameter)
   GetUserById = async (request: Request, response: Response) => {
-    const userId = request.params.userId;
+    const userId = request.userid;
     if (!userId) {
       response.status(400).send([{ message: 'UserId parameter is required.' }]);
       return;
@@ -116,7 +116,8 @@ export default class AuthService {
 
   // PUT: Update user details after verifying the email exists.
   UpdateUser = async (request: Request, response: Response) => {
-    const { userId, firstName, lastName, email } = request.body;
+    const { firstName, lastName } = request.body;
+    const userId = request.userid;
     const userExists = await this.authDA.GetUserById(userId);
 
     if (!userExists || userExists.length === 0) {
@@ -124,7 +125,7 @@ export default class AuthService {
       return;
     }
 
-    await this.authDA.UpdateUser(userId, firstName, lastName, email);
+    await this.authDA.UpdateUser(userId, firstName, lastName);
     response.status(200).send({ message: 'User updated successfully.' });
   };
 
