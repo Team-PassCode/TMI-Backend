@@ -84,7 +84,7 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     >(DBsp.GetPlanList, [userId]);
   }
 
-  async FindMeetingOverlap(startTime: Date, endTime: Date) {
+  async FindMeetingOverlap(startTime: Date, endTime: Date, userId: string) {
     // return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlap, [
     //   startTime,
     //   endTime,
@@ -96,6 +96,7 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
     return this.ReadDB<[PlanD[]]>(DBqueries.FindMeetingOverlapV2, [
       endTime,
       startTime,
+      userId,
     ]);
   }
 

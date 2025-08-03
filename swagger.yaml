@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: API documentation for TMI Backend
 servers:
-  - url: https://9f5c03fcdac4.ngrok-free.app
+  - url: https://212e30a55c84.ngrok-free.app
 paths:
   /auth/login:
     post:

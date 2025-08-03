@@ -184,7 +184,8 @@ export default class PlanService {
 
     const overlappedPlansFound = await this.planDA.FindMeetingOverlap(
       planStartTime,
-      planEndTime
+      planEndTime,
+      userid ?? ''
     );
 
     if (

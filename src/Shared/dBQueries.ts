@@ -10,7 +10,7 @@ export const DBqueries = {
   DeleteAllPlanReferences: 'Delete From tbl_Plan_Reference Where Plan_Id = ?',
   DeleteAllPlanBreaks: 'Delete From tbl_Plan_Break Where Plan_Id = ?',
   UpdatePlan:
-    'Update tbl_Plan SET Title = ?, Description = ?, Start_Time = ?, End_Time = ?, Day = ?, Updated_By = ? WHERE Plan_Id = ?',
+    'Update tbl_Plan SET Title = ?, Description = ?, Start_Time = ?, End_Time = ?, Day = ?, Updated_By = ?, Updated_On = CURRENT_TIMESTAMP WHERE Plan_Id = ?',
   SaveNotes:
     'Insert Into tbl_Note(Note_Id, Plan_Id, Notes, Created_By) Values(?,?,?,?)',
   UpdateNotes:
@@ -21,7 +21,7 @@ export const DBqueries = {
   FindMeetingOverlap:
     'SELECT * FROM tbl_Plan WHERE ((Start_Time BETWEEN ? AND ?) OR (End_Time BETWEEN ? AND ?) OR (? BETWEEN Start_Time AND End_Time) OR (? BETWEEN Start_Time AND End_Time));',
   FindMeetingOverlapV2:
-    'SELECT * FROM tbl_Plan WHERE (Start_Time < ? AND End_Time > ?)',
+    'SELECT * FROM tbl_Plan WHERE (Start_Time < ? AND End_Time > ?) and User_Id = ?',
   FindMeetingOverlapForUpdate:
     'SELECT * FROM tbl_Plan WHERE Plan_Id != ? AND (Start_Time < ? AND End_Time > ?)',
   FindMeetingOverlapForUpdateV2:
