@@ -18,6 +18,10 @@ export default class AuthRouter {
 
     router.get('/', authenticate, this.authService.GetUserById);
 
+    // Forgot Password routes
+    router.post('/forgot-password', this.authService.ForgotPassword);
+    router.post('/reset-password', this.authService.ResetPassword);
+
     // TEST ONLY: Delete user by email
     router.delete('/test-delete', this.authService.DeleteUserByEmail);
   }

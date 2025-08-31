@@ -22,6 +22,12 @@ export default class AuthService {
   // In-memory OTP store (email -> { otp, expiresAt })
   private otpStore = new Map<string, { otp: string; expiresAt: number }>();
 
+  // In-memory store for forgot password OTPs
+  private forgotPasswordStore = new Map<
+    string,
+    { otp: string; expiresAt: number }
+  >();
+
   // POST: Create a new user using OTP verification.
   // If no OTP is provided, an OTP is generated and emailed.
   // If an OTP is provided, it is verified before user creation.
@@ -184,6 +190,77 @@ export default class AuthService {
         .json({ message: 'Invalid or expired refresh token' });
       return;
     }
+  };
+
+  // POST: Forgot Password - send OTP to email if user exists
+  ForgotPassword = async (request: Request, response: Response) => {
+    const { email } = request.body;
+    if (!email) {
+      response.status(400).json({ message: 'Email is required' });
+      return;
+    }
+    const user = await this.authDA.GetUserByEmail(email);
+    if (!user || user.length === 0) {
+      response.status(404).json({ message: 'User not found' });
+      return;
+    }
+    const otp = UserUtils.generateOTP();
+    this.forgotPasswordStore.set(email, {
+      otp,
+      expiresAt: Date.now() + 5 * 60 * 1000,
+    });
+    try {
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 8px #f0f1f2; padding: 24px;">
+          <h2 style="color: #2d7ff9; text-align: center;">TIMA - Password Reset</h2>
+          <p style="font-size: 16px; color: #333;">You requested a password reset. Use the OTP below to reset your password:</p>
+          <div style="text-align: center; margin: 24px 0;">
+            <span style="display: inline-block; font-size: 32px; letter-spacing: 8px; color: #2d7ff9; font-weight: bold; background: #f5f7fa; padding: 12px 32px; border-radius: 6px; border: 1px dashed #2d7ff9;">${otp}</span>
+          </div>
+          <p style="font-size: 14px; color: #666;">This OTP is valid for 5 minutes.</p>
+          <p style="font-size: 14px; color: #aaa; text-align: center; margin-top: 32px;">&copy; ${new Date().getFullYear()} TIMA</p>
+        </div>
+      `;
+      await this.mailService.sendMail({
+        to: email,
+        subject: 'TIMA - Password Reset OTP',
+        text: `Your OTP for password reset is: ${otp}`,
+        html,
+      });
+      response.status(200).json({ message: 'OTP sent to your email' });
+    } catch (error) {
+      console.error('Failed to send password reset OTP email:', error);
+      response
+        .status(500)
+        .json({ message: 'Failed to send password reset OTP email' });
+    }
+  };
+
+  // POST: Reset Password - verify OTP and update password
+  ResetPassword = async (request: Request, response: Response) => {
+    const { email, otp, password } = request.body;
+    if (!email || !otp || !password) {
+      response
+        .status(400)
+        .json({ message: 'Email, OTP, and new password are required' });
+      return;
+    }
+    const record = this.forgotPasswordStore.get(email);
+    if (!record) {
+      response
+        .status(400)
+        .json({ message: 'No OTP request found for this email' });
+      return;
+    }
+    if (record.expiresAt < Date.now() || record.otp !== otp) {
+      response.status(400).json({ message: 'Invalid or expired OTP' });
+      return;
+    }
+    // Hash the new password and update it in the DB
+    const hashedPassword = await UserUtils.hashPassword(password);
+    await this.authDA.UpdateUserPassword(email, hashedPassword);
+    this.forgotPasswordStore.delete(email);
+    response.status(200).json({ message: 'Password updated successfully' });
   };
 
   // TEST ONLY: Delete user by email

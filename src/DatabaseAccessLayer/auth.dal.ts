@@ -54,6 +54,14 @@ export default class AuthDatabaseAccessLayer extends DbConnection {
     return result;
   }
 
+  async UpdateUserPassword(email: string, hashedPassword: string) {
+    const result = await this.InsertOrUpdateDB(
+      [DBqueries.UpdateUserPassword],
+      [[hashedPassword, email]]
+    );
+    return result;
+  }
+
   async GetUserByEmail(email: string) {
     const result = await this.ReadDB<AuthD[]>(DBqueries.GetUserByEmail, [
       email,

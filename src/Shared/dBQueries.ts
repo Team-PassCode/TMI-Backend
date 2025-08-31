@@ -47,6 +47,7 @@ export const DBqueries = {
     'UPDATE tbl_User SET First_Name = ?, Last_Name = ?, Updated_On = CURRENT_TIMESTAMP WHERE User_Id = ?',
   GetUserByEmail:
     'SELECT User_Id, First_Name, Last_Name, Email, Password FROM tbl_User WHERE Email = ?',
+  UpdateUserPassword: 'UPDATE tbl_User SET Password = ? WHERE Email = ?',
 };
 
 export const DBsp = {
