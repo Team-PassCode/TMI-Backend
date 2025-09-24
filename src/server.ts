@@ -9,6 +9,8 @@ import { errorHandler } from './middleware/errorHandler';
 import { wrapAsyncRoutes } from './util/wraAsyncRoutes';
 
 import { swaggerUi, swaggerSpec } from './swagger';
+// Import the WebsiteRouter
+import WebsiteRouter from './api/websiteRoute';
 
 class App {
   private app: Express;
@@ -39,6 +41,10 @@ class App {
     registerControllers(this.router);
 
     wrapAsyncRoutes(this.router);
+
+    // Fallback: Mount WebsiteRouter as the last route handler
+    const websiteRouter = new WebsiteRouter();
+    websiteRouter.SetRouter(this.router);
   }
 
   setErrorHandler() {
