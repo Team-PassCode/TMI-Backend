@@ -9,7 +9,6 @@ export default class WebsiteRouter {
 
   SetRouter(router: Router) {
     router.get('/*', (req: Request, res: Response): void => {
-      console.log('Received request for:', req.path);
       // Get the requested path (it captures nested folders)
       // req.params['0'] is provided by the wildcard route
       let requestedPath = req.params['0'] || req.path;
@@ -21,7 +20,6 @@ export default class WebsiteRouter {
 
       // Absolute path to the website folder
       const websiteFolderPath = '/home/ec2-user/TMI-Backend/src' + '/website';
-      console.log('Serving file from:', websiteFolderPath);
       // Construct the full file path
       const filePath = path.join(websiteFolderPath, requestedPath);
 
@@ -34,12 +32,10 @@ export default class WebsiteRouter {
       // Check if the file exists and send it
       fs.stat(filePath, (err, stats) => {
         if (err || !stats.isFile()) {
-          console.log('File not found or inaccessible:', filePath);
           return res.status(404).send({ message: 'File not found.' });
         }
         res.sendFile(filePath, (err) => {
           if (err) {
-            console.log('Error sending file:', err);
             res.status(404).send({ message: 'File not found.' });
           }
         });
