@@ -20,10 +20,7 @@ export default class WebsiteRouter {
       }
 
       // Absolute path to the website folder
-      const websiteFolderPath = path.resolve(
-        '/home/ec2-user/TMI-Backend/src',
-        '/website'
-      );
+      const websiteFolderPath = '/home/ec2-user/TMI-Backend/src' + '/website';
       console.log('Serving file from:', websiteFolderPath);
       // Construct the full file path
       const filePath = path.join(websiteFolderPath, requestedPath);
