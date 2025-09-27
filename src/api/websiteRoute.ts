@@ -19,7 +19,7 @@ export default class WebsiteRouter {
       }
 
       // Absolute path to the website folder
-      const websiteFolderPath = path.resolve(__dirname, '../website');
+      const websiteFolderPath = path.resolve(process.env.ROOT_DIR!, '/website');
       // Construct the full file path
       const filePath = path.join(websiteFolderPath, requestedPath);
 
