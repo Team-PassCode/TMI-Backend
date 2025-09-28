@@ -11,6 +11,8 @@ import { wrapAsyncRoutes } from './util/wraAsyncRoutes';
 import { swaggerUi, swaggerSpec } from './swagger';
 // Import the WebsiteRouter
 import WebsiteRouter from './api/websiteRoute';
+import { Container } from 'typedi';
+import { ReminderScheduler } from './scheduler/ReminderScheduler';
 
 class App {
   private app: Express;
@@ -55,6 +57,9 @@ class App {
     const port = process.env.APP_PORT || 3001;
     this.app.listen(port, () => {
       console.log(`Project running on ${port}`);
+      // Start the reminder scheduler once the app is running.
+      const scheduler = Container.get(ReminderScheduler);
+      scheduler.start();
     });
   }
 }

@@ -48,6 +48,8 @@ export const DBqueries = {
   GetUserByEmail:
     'SELECT User_Id, First_Name, Last_Name, Email, Password FROM tbl_User WHERE Email = ?',
   UpdateUserPassword: 'UPDATE tbl_User SET Password = ? WHERE Email = ?',
+  GetUpcomingPlans:
+    'SELECT * FROM tbl_Plan WHERE TIMESTAMPDIFF(MINUTE, NOW(), Start_Time) BETWEEN ? AND ? AND User_Id = ?',
 };
 
 export const DBsp = {

@@ -274,4 +274,18 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
   ) {
     return await this.ReadDB<PlanD[]>(query, [...titles, startTime, endTime]);
   }
+
+  async getUpcomingPlans(
+    userId: string,
+    reminderMinutes: number,
+    window: number = 1
+  ) {
+    const lowerBound = reminderMinutes - window;
+    const upperBound = reminderMinutes + window;
+    return this.ReadDB<PlanD[]>(DBqueries.GetUpcomingPlans, [
+      lowerBound,
+      upperBound,
+      userId,
+    ]);
+  }
 }
