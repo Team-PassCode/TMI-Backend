@@ -18,6 +18,7 @@ export interface PlanD extends RowDataPacket {
   Updated_On: Date;
   Created_By: string;
   Updated_By: string;
+  Email: string; // from tbl_User
 }
 
 export interface PlanReferenceD extends RowDataPacket {
@@ -276,16 +277,15 @@ export default class PlanDatabaseAccessLayer extends DbConnection {
   }
 
   async getUpcomingPlans(
-    userId: string,
     reminderMinutes: number,
     window: number = 1
-  ) {
+  ): Promise<PlanD[]> {
     const lowerBound = reminderMinutes - window;
     const upperBound = reminderMinutes + window;
-    return this.ReadDB<PlanD[]>(DBqueries.GetUpcomingPlans, [
+    const result = await this.ReadDB<PlanD[]>(DBqueries.GetUpcomingPlans, [
       lowerBound,
       upperBound,
-      userId,
     ]);
+    return result;
   }
 }

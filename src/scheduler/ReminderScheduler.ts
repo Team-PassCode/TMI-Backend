@@ -4,13 +4,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { MailService } from '../lib/mailService';
-import PlanDatabaseAccessLayer from '../DatabaseAccessLayer/plan.dal';
+import PlanDatabaseAccessLayer, {
+  PlanD,
+} from '../DatabaseAccessLayer/plan.dal';
 
 @Service()
 export class ReminderScheduler {
   private readonly reminderMinutes: number;
-  private readonly defaultUserId: string;
-  private readonly defaultUserEmail: string;
 
   constructor(
     @Inject(() => PlanDatabaseAccessLayer)
@@ -18,8 +18,6 @@ export class ReminderScheduler {
     @Inject(() => MailService) private mailService: MailService
   ) {
     this.reminderMinutes = Number(process.env.REMINDER_MINUTES) || 15;
-    this.defaultUserId = process.env.DEFAULT_USER_ID || '';
-    this.defaultUserEmail = process.env.DEFAULT_USER_EMAIL || '';
   }
 
   public start() {
@@ -32,8 +30,7 @@ export class ReminderScheduler {
   private async checkAndSendReminders() {
     try {
       // Fetch only upcoming plans (within the specified reminder range)
-      const plans = await this.planDAL.getUpcomingPlans(
-        this.defaultUserId,
+      const plans: PlanD[] = await this.planDAL.getUpcomingPlans(
         this.reminderMinutes
       );
       if (!plans || plans.length === 0) {
@@ -62,12 +59,12 @@ export class ReminderScheduler {
 </html>`;
 
         console.log(`Preparing to send reminder for plan ${plan.Plan_Id}`);
-        console.log(`User Email: ${this.defaultUserEmail}`);
+        console.log(`User Email: ${plan.Email}`);
         console.log(`Plan start time: ${planStartTime.toLocaleString()}`);
 
         try {
           await this.mailService.sendMail({
-            to: this.defaultUserEmail,
+            to: plan.Email,
             subject,
             html,
           });
