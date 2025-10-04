@@ -17,7 +17,7 @@ export class ReminderScheduler {
     private planDAL: PlanDatabaseAccessLayer,
     @Inject(() => MailService) private mailService: MailService
   ) {
-    this.reminderMinutes = Number(process.env.REMINDER_MINUTES) || 15;
+    this.reminderMinutes = Number(process.env.REMINDER_MINUTES) || 345;
   }
 
   public start() {
